@@ -1,0 +1,1450 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mesa de Datos · Plan Estadístico Territorial de Ibagué</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+:root{
+  --tinta:#0F2130;
+  --pizarra:#1E3D50;
+  --papel:#EFF1EE;
+  --papel-2:#F8F9F7;
+  --musgo:#2C6B5C;
+  --ocre:#C0801F;
+  --ocre-suave:#F2E4C7;
+  --alerta:#A63A28;
+  --linea:#C9CFCA;
+  --gris:#5E6B6A;
+  --display:'Fraunces', Georgia, 'Times New Roman', serif;
+  --cuerpo:'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+  --mono:'IBM Plex Mono', ui-monospace, Menlo, monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--papel);color:var(--tinta);font-family:var(--cuerpo);font-size:15px;line-height:1.5}
+button{font-family:inherit;cursor:pointer}
+a{color:var(--musgo)}
+
+/* ---------- Encabezado ---------- */
+.tope{background:var(--tinta);color:#EDEFEA;padding:18px 22px;display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between}
+.tope h1{font-family:var(--display);font-weight:600;font-size:26px;margin:0;letter-spacing:-.01em}
+.tope .sub{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#8FA6A0;margin:0 0 4px}
+.tope .lema{font-size:13px;color:#A9B7B2;margin:6px 0 0;max-width:52ch}
+.medidor{min-width:210px}
+.medidor .cifra{font-family:var(--display);font-size:30px;line-height:1}
+.medidor .etq{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#8FA6A0}
+.barra{height:6px;background:#274050;margin-top:8px;border-radius:3px;overflow:hidden}
+.barra i{display:block;height:100%;background:var(--ocre);width:0;transition:width .4s ease}
+
+.aviso{background:var(--ocre-suave);color:#5A4310;padding:10px 22px;font-size:13px;border-bottom:1px solid #E0CFA6}
+.aviso b{font-weight:600}
+
+/* ---------- Estructura ---------- */
+.marco{display:flex;align-items:flex-start;gap:0;max-width:1280px;margin:0 auto}
+.rail{width:290px;flex:0 0 290px;padding:22px 14px 60px;position:sticky;top:0;max-height:100vh;overflow:auto}
+.panel{flex:1;min-width:0;padding:22px 24px 80px;background:var(--papel-2);border-left:1px solid var(--linea);min-height:100vh}
+
+.rail h2{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--gris);margin:20px 6px 8px}
+.nav{list-style:none;margin:0;padding:0}
+.nav li{margin-bottom:2px}
+.nav button{width:100%;text-align:left;background:none;border:0;border-left:3px solid transparent;padding:10px 10px 10px 12px;display:flex;gap:11px;align-items:flex-start;border-radius:0 6px 6px 0;color:var(--tinta)}
+.nav button:hover{background:#E4E8E3}
+.nav button[aria-current="true"]{background:#E1E7E2;border-left-color:var(--ocre)}
+.orden{font-family:var(--mono);font-size:11px;color:var(--gris);padding-top:2px;min-width:16px}
+.nav .tit{font-weight:600;font-size:14px;display:block}
+.nav .cod{font-family:var(--mono);font-size:10.5px;color:var(--gris);letter-spacing:.06em}
+.pastilla{margin-left:auto;font-family:var(--mono);font-size:10px;background:#D6DCD7;color:var(--gris);border-radius:9px;padding:2px 7px;align-self:center}
+.pastilla.viva{background:var(--musgo);color:#fff}
+
+/* ---------- Contenido ---------- */
+.cab{border-bottom:2px solid var(--tinta);padding-bottom:14px;margin-bottom:22px}
+.cab .eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ocre);margin:0 0 6px}
+.cab h2{font-family:var(--display);font-size:28px;font-weight:600;margin:0;letter-spacing:-.015em}
+.cab p{margin:8px 0 0;color:var(--gris);max-width:70ch;font-size:14px}
+
+.modulo{background:#fff;border:1px solid var(--linea);border-radius:8px;margin-bottom:16px;overflow:hidden}
+.modulo>header{padding:12px 16px;background:#F1F3F0;border-bottom:1px solid var(--linea);display:flex;gap:10px;align-items:baseline;cursor:pointer;user-select:none}
+.modulo>header .letra{font-family:var(--mono);font-size:11px;color:#fff;background:var(--pizarra);border-radius:4px;padding:2px 7px}
+.modulo>header h3{font-size:14px;margin:0;font-weight:600;flex:1}
+.modulo>header .chev{color:var(--gris);font-size:12px;font-family:var(--mono)}
+.modulo .cuerpo{padding:16px;display:grid;gap:16px}
+.modulo.cerrado .cuerpo{display:none}
+
+.campo>label,.campo .rotulo{display:block;font-weight:600;font-size:13.5px;margin-bottom:5px}
+.campo .cod{font-family:var(--mono);font-size:11px;color:var(--ocre);margin-right:7px}
+.campo .ayuda{font-size:12.5px;color:var(--gris);margin:0 0 7px;max-width:78ch}
+.req::after{content:" •";color:var(--alerta)}
+
+input[type=text],input[type=email],input[type=tel],input[type=url],input[type=number],input[type=month],input[type=date],select,textarea{
+  width:100%;padding:8px 10px;border:1px solid var(--linea);border-radius:5px;font-family:inherit;font-size:14px;background:#fff;color:var(--tinta)}
+textarea{min-height:74px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--musgo);outline-offset:1px;border-color:var(--musgo)}
+.pareja{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+.ops{display:grid;gap:6px}
+.op{display:flex;gap:8px;align-items:flex-start;font-size:14px}
+.op input{margin-top:3px;accent-color:var(--musgo);flex:0 0 auto}
+.op .det{margin-top:5px;width:100%}
+.op-cuerpo{flex:1;min-width:0}
+.ops.dos{grid-template-columns:1fr 1fr}
+@media(max-width:760px){.ops.dos{grid-template-columns:1fr}.pareja{grid-template-columns:1fr}}
+
+.lista .fila{display:flex;gap:8px;margin-bottom:6px;align-items:center}
+.lista .fila span{font-family:var(--mono);font-size:11px;color:var(--gris);width:22px;text-align:right}
+.mini{background:#fff;border:1px solid var(--linea);border-radius:5px;padding:5px 9px;font-size:12px;color:var(--gris)}
+.mini:hover{border-color:var(--musgo);color:var(--musgo)}
+
+table.rejilla{width:100%;border-collapse:collapse;font-size:13px}
+table.rejilla th{text-align:left;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--gris);padding:5px 6px;border-bottom:1px solid var(--linea);font-weight:500}
+table.rejilla td{padding:4px 6px;border-bottom:1px solid #EBEEEA;vertical-align:top}
+table.rejilla td input{font-size:13px;padding:6px 8px}
+table.matriz td{text-align:center}
+table.matriz td:first-child{text-align:left;font-size:13px}
+table.matriz input{accent-color:var(--musgo)}
+
+.acciones{display:flex;flex-wrap:wrap;gap:9px;align-items:center;position:sticky;bottom:0;background:linear-gradient(to top,var(--papel-2) 70%,rgba(248,249,247,0));padding:14px 0 6px;margin-top:6px}
+.btn{background:var(--tinta);color:#fff;border:0;border-radius:6px;padding:10px 16px;font-size:14px;font-weight:500}
+.btn:hover{background:var(--pizarra)}
+.btn.sec{background:#fff;color:var(--tinta);border:1px solid var(--linea)}
+.btn.sec:hover{border-color:var(--tinta);background:#fff}
+.btn.peligro{background:#fff;color:var(--alerta);border:1px solid #E3C3BC}
+.eco{font-size:13px;color:var(--musgo);font-weight:500}
+
+.fichas{display:grid;gap:8px;margin-bottom:20px}
+.ficha{background:#fff;border:1px solid var(--linea);border-radius:7px;padding:11px 13px;display:flex;gap:12px;align-items:center}
+.ficha .nom{font-weight:600;font-size:14px;flex:1;min-width:0}
+.ficha .meta{font-family:var(--mono);font-size:11px;color:var(--gris)}
+.ficha .estado{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.08em;padding:3px 8px;border-radius:10px;background:#EDEFEA;color:var(--gris)}
+.ficha .estado.ok{background:#DCEBE4;color:var(--musgo)}
+.vacio{border:1px dashed var(--linea);border-radius:8px;padding:26px;text-align:center;color:var(--gris);font-size:14px;background:#fff}
+.vacio strong{display:block;font-family:var(--display);font-size:18px;color:var(--tinta);margin-bottom:5px;font-weight:600}
+
+.puente{background:#FBF6EA;border:1px solid #E7D8B4;border-radius:8px;padding:14px 16px;margin-bottom:16px}
+.puente h4{margin:0 0 4px;font-size:13px;font-family:var(--mono);letter-spacing:.1em;text-transform:uppercase;color:#8A6414}
+.puente p{margin:0 0 12px;font-size:12.5px;color:#6B5518;max-width:78ch}
+
+.tabla-cons{width:100%;border-collapse:collapse;font-size:13px;background:#fff;border:1px solid var(--linea);border-radius:8px;overflow:hidden}
+.tabla-cons th{background:#F1F3F0;text-align:left;padding:9px 11px;font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--gris);font-weight:500}
+.tabla-cons td{padding:9px 11px;border-top:1px solid #EBEEEA}
+.n{font-family:var(--mono)}
+</style>
+
+<div class="tope">
+  <div>
+    <p class="sub">Alcaldía Municipal de Ibagué · SIGAMI</p>
+    <h1>Mesa de Datos</h1>
+    <p class="lema">Captura de los cinco formularios del Plan Estadístico Territorial. Estructura de campos según los manuales de diligenciamiento del DANE — DIRPEN, articulada con los procesos misionales del SIGAMI.</p>
+  </div>
+  <div class="medidor">
+    <div class="cifra" id="cifraTotal">0</div>
+    <div class="etq">formatos guardados</div>
+    <div class="barra"><i id="barraTotal"></i></div>
+  </div>
+</div>
+<div class="aviso" id="aviso" style="display:none"></div>
+
+<div class="marco">
+  <nav class="rail">
+    <h2>Antes de empezar</h2>
+    <ul class="nav" id="navBase"></ul>
+    <h2>Orden de la jornada</h2>
+    <ul class="nav" id="navForms"></ul>
+    <h2>Al cierre</h2>
+    <ul class="nav" id="navFin"></ul>
+  </nav>
+  <main class="panel" id="panel"></main>
+</div>
+
+<script>
+/* =======================================================================
+   1. ALMACENAMIENTO
+   ===================================================================== */
+const memoria = {};
+let persistente = true;
+let motor = 'anthropic';          // anthropic → navegador → memoria
+const store = {
+  async get(k){
+    try{ const r = await window.storage.get(k); return r ? JSON.parse(r.value) : null; }
+    catch(e){
+      if(!window.storage){
+        try{ const s = localStorage.getItem(k); motor='navegador'; return s ? JSON.parse(s) : null; }
+        catch(e2){ motor='memoria'; persistente=false; }
+      }
+      return memoria[k] ?? null;
+    }
+  },
+  async set(k,v){
+    memoria[k] = v;
+    try{ await window.storage.set(k, JSON.stringify(v)); return; }
+    catch(e){ /* sigue abajo */ }
+    try{ localStorage.setItem(k, JSON.stringify(v)); motor='navegador'; }
+    catch(e2){ motor='memoria'; persistente=false; }
+  }
+};
+const K = p => 'pet-ibague:' + p;
+
+/* =======================================================================
+   2. LISTAS OFICIALES DANE
+   ===================================================================== */
+const TEMAS = [
+  ['Ambiental','Asentamientos humanos y salud ambiental'],
+  ['Ambiental','Condiciones y calidad ambiental'],
+  ['Ambiental','Eventos extremos y desastres'],
+  ['Ambiental','Protección ambiental, gestión y participación ciudadana'],
+  ['Ambiental','Recursos ambientales y su uso'],
+  ['Ambiental','Residuos'],
+  ['Económica','Agricultura, ganadería y pesca'],
+  ['Económica','Comercio'],
+  ['Económica','Construcción'],
+  ['Económica','Cuentas económicas'],
+  ['Económica','Finanzas públicas y estadísticas fiscales'],
+  ['Económica','Índices de precios y costos'],
+  ['Económica','Industria'],
+  ['Económica','Minero energético'],
+  ['Económica','Moneda, banca y finanzas'],
+  ['Económica','Servicios (turismo, hoteles, restaurantes y otros)'],
+  ['Económica','Tecnologías de la información y las comunicaciones'],
+  ['Económica','Transporte'],
+  ['Sociodemográfica','Actividad política y asociativa'],
+  ['Sociodemográfica','Administración pública'],
+  ['Sociodemográfica','Cultura'],
+  ['Sociodemográfica','Demografía y población'],
+  ['Sociodemográfica','Deporte y recreación'],
+  ['Sociodemográfica','Educación, ciencia, tecnología e innovación'],
+  ['Sociodemográfica','Justicia'],
+  ['Sociodemográfica','Mercado laboral y seguridad social'],
+  ['Sociodemográfica','Nivel, calidad y condiciones de vida'],
+  ['Sociodemográfica','Salud'],
+  ['Sociodemográfica','Seguridad y defensa'],
+  ['Sociodemográfica','Servicios públicos domiciliarios']
+];
+const OPC_TEMA = TEMAS.map(t => t[0] + ' — ' + t[1]);
+const SALAS = ['Economía','Geografía, medio ambiente y ordenamiento territorial','Gobierno, seguridad y justicia','Modernización tecnológica de la producción estadística','Salud, bienestar social y demografía','No aplica'];
+const NORMAS = ['Constitución Política','Ley','Decreto (nacional, departamental o municipal)','Otra (resolución, ordenanza, acuerdo municipal)','Ninguna'];
+const UNIDAD_OBS = ['Empresa','Establecimiento','Hogar','Persona','Unidad productora agropecuaria','Predio','Otra|ask'];
+const GEO = ['Nacional','Regional|ask','Departamental|ask','Áreas metropolitanas|ask','Municipal|ask','Comuna o corregimiento|ask','Otra|ask'];
+const GRUPOS = ['Sexo','Identidad de género','Orientación sexual','Edad','Ciclo de vida','Grupo étnico','Discapacidad','Campesinado','Víctima del conflicto armado','Migrante','Estrato','Otra|ask','Ninguno'];
+const HERRAMIENTAS = ['Excel','Access','R','SAS','SPSS','Oracle','Stata','Cubos O3 / bodega O3','Power BI','SQL Server','Otra|ask'];
+const PERIODICIDAD = ['Anual','Semestral','Trimestral','Bimestral','Mensual','Semanal','Diaria','Por evento','Otra|ask'];
+const USUARIOS = ['Organismos internacionales|ask','Presidencia de la República','Ministerios|ask','Organismos de control|ask','Otras entidades del orden nacional|ask','Entidades de orden territorial|ask','Gremios|ask','Entidades privadas|ask','Dependencias de la misma entidad|ask','Academia|ask','Público en general','Otro|ask'];
+const REQUERIMIENTOS = ['Objetivos de Desarrollo Sostenible (ODS)|ask','OCDE','Otros compromisos internacionales (CAN, CEPAL, etc.)','Plan Nacional de Desarrollo','Cuentas económicas y macroeconómicas','Plan sectorial, territorial o CONPES','Otro|ask','Ninguno'];
+const MEDIO_DATOS = ['Formulario físico','Formulario electrónico','Dispositivo móvil de captura (DMC)','Sistema de información|ask','Percepción remota (imágenes satelitales, sensores)','Base de datos de registro administrativo','Resultados de otra operación estadística','Otro|ask'];
+const CONCEPTOS_EST = ['DANE','OCDE','ONU','EUROSTAT','Otro organismo internacional|ask','Otra entidad de orden nacional|ask','Leyes, decretos, etc.|ask','Creación propia','Otra|ask','No utiliza conceptos estandarizados'];
+
+/* Procesos misionales del SIGAMI: ajustar al mapa de procesos vigente */
+const PROCESOS = [
+  'Planeación territorial y ordenamiento',
+  'Gestión de la salud pública',
+  'Gestión educativa',
+  'Gestión de infraestructura y espacio público',
+  'Movilidad y tránsito',
+  'Gestión ambiental y gestión del riesgo',
+  'Desarrollo económico, turismo y competitividad',
+  'Bienestar social e inclusión',
+  'Cultura, deporte y recreación',
+  'Gobierno, convivencia y seguridad ciudadana',
+  'Hacienda y gestión de ingresos',
+  'Servicio a la ciudadanía y PQRSD',
+  'Otro proceso misional|ask'
+];
+
+/* =======================================================================
+   3. ESQUEMAS DE LOS FORMULARIOS
+   ===================================================================== */
+const idBloque = (pre) => ([
+  {id:pre+'dep', t:'text', l:'Nombre de la dependencia', req:true, h:'Secretaría, dirección, grupo o unidad responsable.'},
+  {id:pre+'jefe', t:'text', l:'Nombre del jefe o director de la dependencia', req:true},
+  {id:pre+'cargoJefe', t:'text', l:'Cargo del jefe o director'},
+  {id:pre+'correoJefe', t:'text', l:'Correo electrónico institucional del jefe'},
+  {id:pre+'telJefe', t:'text', l:'Teléfono del jefe', h:'Sin espacios. Si hay extensión escriba Ext. Ej.: (57) 608 2611111 Ext. 120'},
+  {id:pre+'tec', t:'text', l:'Nombre del temático o responsable técnico', req:true, h:'Quien tiene contacto directo con el dato, no necesariamente el jefe.'},
+  {id:pre+'tecCargo', t:'text', l:'Cargo del responsable técnico'},
+  {id:pre+'tecCorreo', t:'text', l:'Correo electrónico del responsable técnico', req:true},
+  {id:pre+'tecTel', t:'text', l:'Teléfono del responsable técnico'}
+]);
+
+const puenteSIGAMI = [
+  {id:'sg_proceso', t:'select', l:'Proceso misional del SIGAMI al que pertenece', o:PROCESOS, req:true, h:'Determina la mesa de trabajo y el responsable de la codificación posterior.'},
+  {id:'sg_codigo', t:'text', l:'Código del documento en el Listado Maestro', h:'Si el instrumento ya existe en el SIGAMI, escriba su código. Ej.: FOR-GD-012 v.3'},
+  {id:'sg_soporte', t:'text', l:'Soporte o evidencia adjunta', h:'Nombre del archivo, formato o pantallazo que respalda lo diligenciado.'}
+];
+
+const ESQUEMAS = {
+
+/* ------------------------- F3 · Registros administrativos ------------------- */
+F3:{
+  cod:'Anexo 4 · F3', nombre:'Caracterización de registros administrativos',
+  titulo:'B1_nombre', orden:1,
+  intro:'Un formulario por cada registro administrativo. Un registro administrativo es cualquier conjunto de datos que la dependencia recoge y conserva en cumplimiento de sus funciones misionales: bases de trámites, planillas, sistemas de información, listados de beneficiarios.',
+  fuente:'https://www.sen.gov.co/sites/default/files/pagina-migraciones-files/2024-08/manual-diligenciamiento-F3.pdf',
+  modulos:[
+    {letra:'A', titulo:'Identificación', campos:[
+      {id:'A_entidad', t:'text', l:'Nombre de la entidad responsable', val:'Alcaldía Municipal de Ibagué', req:true},
+      ...idBloque('A_'),
+      {id:'A_tema', t:'select', l:'Área temática y tema principal', o:OPC_TEMA, req:true}
+    ]},
+    {letra:'B', titulo:'Caracterización del registro administrativo', campos:[
+      {id:'B1_nombre', t:'text', l:'Nombre oficial del registro administrativo', c:'B1', req:true},
+      {id:'B1_version', t:'text', l:'Versión utilizada', c:'B1', h:'Ej.: Versión 2'},
+      {id:'B2', t:'ta', l:'Objetivo del registro administrativo', c:'B2', req:true, h:'Inicie con un verbo en infinitivo. Debe responder a las circunstancias que motivaron su creación.'},
+      {id:'B3', t:'multi', l:'Normas que soportan la creación del registro', c:'B3', o:NORMAS},
+      {id:'B3d', t:'ta', l:'Describa el requerimiento que precisa la norma', h:'Nombre o número, año y artículo o capítulo.'},
+      {id:'B4', t:'ta', l:'Si no hay norma, describa la razón por la cual se creó el registro', c:'B4'},
+      {id:'B5', t:'multi', l:'Principal uso del registro administrativo', c:'B5', o:['Formulación y ejecución de políticas públicas','Seguimiento y evaluación de políticas públicas','Regulación','Control y monitoreo','Gestión institucional','Otro|ask'], req:true},
+      {id:'B6a', t:'month', l:'Fecha de inicio de recolección', c:'B6'},
+      {id:'B6b', t:'month', l:'Fecha de la última recolección', c:'B6'},
+      {id:'B7', t:'multi', l:'Documentos metodológicos o funcionales con que cuenta', c:'B7', o:['Ficha técnica','Manual de diligenciamiento','Diccionario de datos','Otro|ask','No tiene']},
+      {id:'B8', t:'multi', l:'Unidad de observación del registro', c:'B8', o:UNIDAD_OBS, req:true},
+      {id:'B9', t:'lista', l:'Variables recolectadas con el registro', c:'B9', req:true, h:'Una variable por renglón. Si tiene diccionario de datos, adjúntelo y liste aquí las principales.'},
+      {id:'B10', t:'text', l:'Variable llave o de identificación única', c:'B10', req:true, h:'La que permite cruzar con otras bases. Ej.: número de documento, NIT, código predial. Obligatoria: todo registro administrativo debe tener su llave.'},
+      {id:'B11', t:'multi', l:'Conceptos estandarizados que utiliza', c:'B11', o:CONCEPTOS_EST},
+      {id:'B12', t:'ta', l:'Nomenclaturas o clasificaciones que utiliza', c:'B12', h:'Ej.: División Político Administrativa de Colombia (DIVIPOLA), CIIU Rev.4 A.C., CIE-10. Si no usa ninguna, explique por qué.'},
+      {id:'B13', t:'multi', l:'Medio de obtención o recolección de los datos', c:'B13', o:MEDIO_DATOS},
+      {id:'B14', t:'multi', l:'Técnicas de recolección', c:'B14', o:['Autodiligenciamiento','Diligenciamiento asistido','Entrevista personal','Entrevista telefónica','Observación directa','Otra|ask']},
+      {id:'B15', t:'multi', l:'Frecuencia con que se recolectan los datos', c:'B15', o:PERIODICIDAD},
+      {id:'B16', t:'multi', l:'Herramientas usadas en el procesamiento', c:'B16', o:HERRAMIENTAS},
+      {id:'B17', t:'multi', l:'Técnicas de validación de consistencia y completitud', c:'B17', o:['Automática','Manual','Combinación de las anteriores','Otra|ask','No utiliza']},
+      {id:'B18', t:'multi', l:'Herramientas de seguridad de la información', c:'B18', o:['Copias de respaldo (backups)','Aislamiento del servidor','Perfiles de usuario','Doble factor de autenticación','Plan de recuperación de desastres (DRP)','Firewall','Otra|ask']},
+      {id:'B19', t:'radio', l:'¿La información se almacena en una base de datos?', c:'B19', o:['Sí','No'], req:true},
+      {id:'B19b', t:'multi', l:'Si almacena, ¿con qué frecuencia se consolida?', o:['Anual','Semestral','Trimestral','Mensual','Diaria','Por evento','Permanente','Otra|ask']},
+      {id:'B20', t:'multi', l:'Formatos en que están disponibles las bases de datos', c:'B20', o:['xls','xml','db','txt','csv','json','Oracle','SQL Server','Web services','Otro|ask']},
+      {id:'B21', t:'radio', l:'¿Dispone de una base de datos geográfica?', c:'B21', o:['Sí','No']},
+      {id:'B22', t:'multi', l:'Cobertura geográfica del registro', c:'B22', o:GEO, req:true},
+      {id:'B23', t:'multi', l:'Desagregación geográfica del registro', c:'B23', o:GEO, h:'La extensión territorial más pequeña con la que se puede reportar.'},
+      {id:'B24', t:'multi', l:'Desagregación por grupos', c:'B24', o:GRUPOS},
+      {id:'B25', t:'radio', l:'¿La entidad usa estos datos para generar información estadística?', c:'B25', o:['Sí','No','No sabe'], req:true},
+      {id:'B25b', t:'ta', l:'Si la respuesta es sí, ¿qué resultados se generan?', h:'Agregados, indicadores o resultados estadísticos.'},
+      {id:'B26', t:'radio', l:'¿Usuarios externos tienen acceso a los datos?', c:'B26', o:['Sí','No']},
+      {id:'B27', t:'multi', l:'Medios por los que acceden los usuarios', c:'B27', o:['Página web','Correo electrónico','Medio magnético','Aplicativo web','FTP','Datos abiertos','Otro|ask']},
+      {id:'B28', t:'tabla', l:'Entidades que tienen acceso a los datos', c:'B28', cols:['Entidad','Fin del uso']},
+      {id:'B29', t:'multi', l:'Si no se permite el acceso, razón principal', c:'B29', o:['Políticas de la entidad','Disposición normativa','Acuerdos con el informante','Carácter confidencial','Otra|ask']},
+      {id:'ODS', t:'ta', l:'¿El registro responde a requerimientos de los ODS? ¿Cuáles?'}
+    ]},
+    {letra:'C', titulo:'Observaciones y control', campos:[
+      {id:'C_obs', t:'ta', l:'Observaciones', h:'Indique el número de la pregunta que está ampliando.'},
+      {id:'D_quien', t:'text', l:'Funcionario que brinda la información', req:true},
+      {id:'D_cargo', t:'text', l:'Cargo'},
+      {id:'D_fecha', t:'date', l:'Fecha de diligenciamiento', req:true},
+      {id:'D_anexos', t:'ta', l:'Anexos relacionados', h:'Listado de variables, copia del formulario, capturas de pantalla.'}
+    ]}
+  ]
+},
+
+/* ------------------------- F1 · Operaciones estadísticas -------------------- */
+F1:{
+  cod:'Anexo 3 · F1', nombre:'Caracterización de operaciones estadísticas',
+  titulo:'B1', orden:2,
+  intro:'Un formulario por cada operación estadística. Una operación estadística es todo el proceso que va desde detectar la necesidad hasta difundir un resultado: encuestas, censos, estadísticas derivadas y estadísticas obtenidas del aprovechamiento de registros administrativos.',
+  fuente:'https://www.sen.gov.co/sites/default/files/pagina-migraciones-files/2024-03/ManualAnexo3-de-diligenciamiento-F1.pdf',
+  modulos:[
+    {letra:'A', titulo:'Identificación', campos:[
+      {id:'A_entidad', t:'text', l:'Nombre de la entidad responsable', val:'Alcaldía Municipal de Ibagué', req:true},
+      {id:'A2', t:'select', l:'Área temática y tema principal', c:'A2', o:OPC_TEMA, req:true},
+      ...idBloque('A_'),
+      {id:'A5', t:'multi', l:'Temas compartidos', c:'A5', o:OPC_TEMA, h:'Solo si la operación produce resultados en otras temáticas.'},
+      {id:'A6', t:'select', l:'Sala especializada a la que pertenece', c:'A6', o:SALAS}
+    ]},
+    {letra:'B', titulo:'Detección y análisis de necesidades', campos:[
+      {id:'B1', t:'text', l:'Nombre de la operación estadística', c:'B1', req:true, h:'Incluya la sigla entre paréntesis si la tiene.'},
+      {id:'B2', t:'ta', l:'Objetivo general de la operación estadística', c:'B2', req:true, h:'Inicie con mayúscula y verbo en infinitivo. Ej.: Producir información sobre…'},
+      {id:'B3', t:'tabla', l:'Otras entidades que participan en alguna fase del proceso', c:'B3', cols:['Entidad','Fases en que participa']},
+      {id:'B4', t:'multi', l:'Normas que soportan la producción de la información', c:'B4', o:NORMAS},
+      {id:'B4d', t:'ta', l:'Describa la norma', h:'Nombre, número, año y artículo o capítulo.'},
+      {id:'B5', t:'multi', l:'La operación satisface requerimientos de', c:'B5', o:REQUERIMIENTOS},
+      {id:'B6', t:'multi', l:'Mecanismos usados para recoger necesidades', c:'B6', o:['Encuestas','Reuniones con expertos','Reuniones con partes interesadas','Mesas intersectoriales','Solicitudes directas de información','Documentos de política pública','Planes estratégicos, de acción o de mejora','Consultas de referentes','Otro|ask','Ninguno']},
+      {id:'B7', t:'multi', l:'Principales usuarios de la operación estadística', c:'B7', o:USUARIOS, req:true},
+      {id:'B8', t:'radio', l:'¿Conoce si otra entidad produce resultados similares?', c:'B8', o:['Sí|ask','No']},
+      {id:'B9', t:'radio', l:'¿La operación hace parte de algún sistema de información?', c:'B9', o:['Sí|ask','No']},
+      {id:'B10', t:'text', l:'Costo anual de la operación estadística', c:'B10', h:'En pesos colombianos. Si no lo sabe, escriba: No sabe.'},
+      {id:'B11', t:'multi', l:'Fuentes de financiación', c:'B11', o:['Recursos propios','Aportes de otra entidad','Cooperación internacional','Otro|ask']},
+      {id:'B12', t:'multi', l:'La operación cuenta con un plan que contiene', c:'B12', o:['Propuesta técnica y económica','Cronograma de actividades','Presupuesto','Bitácora del proceso','No tiene plan']}
+    ]},
+    {letra:'C', titulo:'Diseño y construcción', campos:[
+      {id:'C1', t:'text', l:'Población objetivo', c:'C1', req:true, h:'Conjunto de elementos sobre los que se presentan resultados.'},
+      {id:'C2', t:'multi', l:'Unidad de observación', c:'C2', o:UNIDAD_OBS, req:true},
+      {id:'C3', t:'multi', l:'La operación estadística es', c:'C3', o:['A partir del aprovechamiento de registros administrativos','Estadística derivada','Encuesta por muestreo probabilístico','Encuesta por muestreo no probabilístico','Censo'], req:true},
+      {id:'C4', t:'tabla', l:'Si usa registros o estadísticas de terceros, indique de dónde se obtienen los datos', c:'C4', cols:['Registro u operación','Entidad responsable']},
+      {id:'C5', t:'multi', l:'Tipo de muestreo utilizado', c:'C5', o:['Aleatorio simple','Aleatorio sistemático','Aleatorio estratificado','Aleatorio por conglomerados','Por cuotas','Intencional o de conveniencia','Bola de nieve','Discrecional','Otro|ask']},
+      {id:'C6', t:'multi', l:'Marco estadístico para identificar y ubicar las unidades', c:'C6', o:['Marco de lista','Marco de área','Marco geoestadístico','Otro|ask','No cuenta con marco']},
+      {id:'C7', t:'multi', l:'Documentos elaborados para el desarrollo de la operación', c:'C7', o:['Metodología','Ficha metodológica (técnica)','Hojas de vida de indicadores','Manual operativo','Diccionario de datos','Documento de consistencia y validación','Otro|ask','Ninguno']},
+      {id:'C8', t:'multi', l:'Conceptos estandarizados que utiliza', c:'C8', o:CONCEPTOS_EST},
+      {id:'C9', t:'ta', l:'Nomenclaturas o clasificaciones que utiliza', c:'C9', h:'Ej.: DIVIPOLA, CIIU Rev.4 A.C., CIUO. Si no usa ninguna, indique por qué.'},
+      {id:'C10', t:'multi', l:'Cobertura geográfica', c:'C10', o:GEO, req:true},
+      {id:'C11a', t:'multi', l:'Desagregación geográfica de los resultados', c:'C11.1', o:GEO},
+      {id:'C11b', t:'multi', l:'Desagregación por zona', c:'C11.2', o:['Total','Urbano','Rural']},
+      {id:'C11c', t:'multi', l:'Desagregación por grupos', c:'C11.3', o:GRUPOS},
+      {id:'C12', t:'lista', l:'Variables que maneja la operación estadística', c:'C12', req:true},
+      {id:'C13', t:'multi', l:'Se realizan pruebas a', c:'C13', o:['Actividades','Métodos','Instrumentos','Software aplicativo','Otro|ask','No se realizan']}
+    ]},
+    {letra:'D', titulo:'Recolección o acopio', campos:[
+      {id:'D1', t:'multi', l:'Medio de obtención de los datos', c:'D1', o:MEDIO_DATOS, req:true},
+      {id:'D2', t:'multi', l:'Periodicidad de recolección o acopio', c:'D2', o:PERIODICIDAD, req:true}
+    ]},
+    {letra:'E', titulo:'Procesamiento', campos:[
+      {id:'E1', t:'multi', l:'Herramientas utilizadas en el procesamiento', c:'E1', o:HERRAMIENTAS, req:true},
+      {id:'E2', t:'ta', l:'Breve descripción de cómo se procesan los datos', c:'E2', req:true, h:'Insumos utilizados, cálculos realizados y resultados obtenidos.'}
+    ]},
+    {letra:'F', titulo:'Análisis', campos:[
+      {id:'F1', t:'multi', l:'Tipo de análisis que realiza a los resultados', c:'F1', o:['Consistencia y validación de datos','Análisis de tendencias y series de tiempo','Análisis de contexto de los resultados','Análisis con enfoque diferencial e interseccional','Otro|ask']},
+      {id:'F2', t:'lista', l:'Resultados estadísticos que produce', c:'F2', req:true, h:'Indicadores o resultados agregados, uno por renglón.'}
+    ]},
+    {letra:'G', titulo:'Difusión', campos:[
+      {id:'G1', t:'multi', l:'Productos usados para difundir los resultados', c:'G1', o:['Cuadros de salida (tablas)','Boletín estadístico','Anuario','Mapas estadísticos','Bases de datos interactivas','Otro|ask']},
+      {id:'G2', t:'multi', l:'Medios de difusión', c:'G2', o:['Página web','Medio físico','Medio electrónico','Otro|ask']},
+      {id:'G3', t:'text', l:'Dirección web donde se encuentran los resultados', c:'G3'},
+      {id:'G4a', t:'month', l:'Resultados disponibles desde', c:'G4'},
+      {id:'G4b', t:'month', l:'Resultados disponibles hasta', c:'G4'},
+      {id:'G5', t:'text', l:'Próxima fecha de publicación', c:'G5', h:'Mes y año. Si no sabe o no hay fecha programada, indíquelo y explique.'},
+      {id:'G6', t:'multi', l:'Frecuencia de difusión de los resultados', c:'G6', o:['Anual','Semestral','Trimestral','Mensual','Otra|ask','No está definido']},
+      {id:'G7', t:'multi', l:'Otros productos disponibles para consulta', c:'G7', o:['Series históricas','Microdatos','Documentos metodológicos','Calendario de difusión','Otro|ask','Ninguno']}
+    ]},
+    {letra:'H', titulo:'Evaluación, observaciones y anexos', campos:[
+      {id:'H1', t:'multi', l:'Actividades que realiza como parte de la evaluación', c:'H1', o:['Verificar el cumplimiento de los objetivos planteados','Identificar aspectos positivos y dificultades','Identificar oportunidades de mejora','Elaborar planes de acción de mejora continua','Otra|ask','Ninguna']},
+      {id:'H2', t:'multi', l:'Herramientas usadas para evaluar', c:'H2', o:['Listas de chequeo','Autoevaluación','Auditorías','Otra|ask','Ninguna']},
+      {id:'I_obs', t:'ta', l:'Observaciones', c:'I'},
+      {id:'J_anexos', t:'ta', l:'Anexos', c:'J'}
+    ]}
+  ]
+},
+
+/* ------------------------- Anexo 2 · Indicadores --------------------------- */
+A2:{
+  cod:'Anexo 2', nombre:'Caracterización de indicadores disponibles',
+  titulo:'B1', orden:3,
+  intro:'Un formulario por cada indicador estratégico: los que en la cadena de valor corresponden a producto, resultado o impacto. Son el insumo de la Línea Base de Indicadores del Plan Estadístico.',
+  fuente:'https://www.sen.gov.co/sites/default/files/pagina-migraciones-files/2024-03/ManualAnexo2-de-diligenciamiento-caracterizacion-de-Indicadores-disponibles.pdf',
+  modulos:[
+    {letra:'A', titulo:'Identificación', campos:[
+      {id:'A1', t:'text', l:'Nombre de la entidad', val:'Alcaldía Municipal de Ibagué', req:true},
+      {id:'A2', t:'text', l:'Director de la entidad o dependencia', req:true},
+      {id:'A3', t:'text', l:'Dirección de la entidad'},
+      {id:'A4', t:'text', l:'Nombre de quien suministra la información', req:true},
+      {id:'A5', t:'text', l:'Cargo'},
+      {id:'A6', t:'text', l:'Teléfono'},
+      {id:'A7', t:'text', l:'Correo electrónico', req:true},
+      {id:'A8', t:'text', l:'Nombre de la dependencia', req:true}
+    ]},
+    {letra:'B', titulo:'Caracterización del indicador', campos:[
+      {id:'B1', t:'text', l:'Nombre del indicador', c:'1', req:true},
+      {id:'B_tipo', t:'radio', l:'Tipo de indicador en la cadena de valor', o:['Producto','Resultado','Impacto'], req:true},
+      {id:'B_instr', t:'text', l:'Instrumento de política al que responde', h:'Plan de Desarrollo Municipal, plan sectorial, CONPES, ODS, plan decenal.'},
+      {id:'B2', t:'ta', l:'Objetivo del indicador', c:'2', req:true, h:'Acción esperada + objeto sobre el que recae + elementos descriptivos.'},
+      {id:'B3', t:'ta', l:'Definición del indicador', c:'3', req:true, h:'Qué mide, cómo lo mide, cuál es la población objetivo y el método de cálculo.'},
+      {id:'B4', t:'ta', l:'Fórmula de cálculo', c:'4', req:true, h:'Si usa siglas, explíquelas en el cuadro de variables.'},
+      {id:'B5', t:'tabla', l:'Variables para el cálculo del indicador', c:'5', req:true, cols:['Variable','Fuente de datos (operación estadística o registro administrativo)','Entidad responsable']},
+      {id:'B6', t:'text', l:'Unidad de medida', c:'6', req:true, h:'Tasa, porcentaje, número de personas, hectáreas, pesos.'},
+      {id:'B7', t:'multi', l:'Desagregación temática', c:'7', o:['Sexo','Edad','Grupo étnico','Discapacidad','Estrato','Otros|ask','Ninguno']},
+      {id:'B8', t:'multi', l:'Nivel de desagregación geográfica', c:'8', o:['Nacional','Regional|ask','Departamental|ask','Área metropolitana|ask','Municipal|ask','Comuna o corregimiento|ask','Otra|ask'], req:true},
+      {id:'B9a', t:'month', l:'Disponible desde', c:'9'},
+      {id:'B9b', t:'month', l:'Disponible hasta', c:'9'},
+      {id:'B10', t:'multi', l:'Periodicidad de difusión', c:'10', o:['Diaria','Semanal','Mensual','Bimestral','Trimestral','Semestral','Anual','Otra|ask','No se difunde'], req:true},
+      {id:'B11', t:'multi', l:'Medio de difusión del resultado', c:'11', o:['Página web','Medio físico','Correo electrónico','Otro|ask']},
+      {id:'B12', t:'multi', l:'Medio de visualización disponible', c:'12', o:['Formato Excel','Formato PDF','Imágenes o tablas estáticas','Imágenes o tablas interactivas','Mapas interactivos (geovisores)','Otro|ask']}
+    ]},
+    {letra:'C', titulo:'Observaciones', campos:[
+      {id:'C_obs', t:'ta', l:'Observaciones', h:'Aclare aquí si la serie de tiempo no es continua.'}
+    ]}
+  ]
+},
+
+/* ------------------------- F2 · Demandas no satisfechas -------------------- */
+F2:{
+  cod:'Anexo 1 · F2', nombre:'Demandas de información estadística no satisfecha',
+  titulo:'B1', orden:4,
+  intro:'Un formulario por cada vacío de información. Sirve para registrar lo que la dependencia necesita y hoy nadie produce, o produce de forma incompleta: falta desagregación, falta cobertura, llega tarde.',
+  fuente:'https://www.sen.gov.co/sites/default/files/pagina-migraciones-files/2025-08/ManualAnexoF2.pdf',
+  modulos:[
+    {letra:'A', titulo:'Identificación del solicitante', campos:[
+      {id:'A1', t:'text', l:'Entidad que identifica la demanda de información', val:'Alcaldía Municipal de Ibagué', req:true},
+      {id:'A3', t:'select', l:'Área temática y tema principal', c:'A3', o:OPC_TEMA, req:true},
+      {id:'A4', t:'select', l:'Sala especializada', c:'A4', o:SALAS},
+      ...idBloque('A_'),
+      {id:'A7', t:'multi', l:'Temas compartidos del requerimiento', c:'A7', o:OPC_TEMA}
+    ]},
+    {letra:'B', titulo:'Detección y análisis de requerimientos', campos:[
+      {id:'B1', t:'text', l:'Indicador o requerimiento de información estadística', c:'1', req:true, h:'Una frase. Ej.: Indicador de deserción escolar por comuna y sexo.'},
+      {id:'B2', t:'multi', l:'Tipo de requerimiento', c:'2', o:['Agregado estadístico o indicador','Ajustes de cobertura geográfica','Ajustes de cobertura temática','Ajustes en la frecuencia de difusión','Otro|ask'], req:true},
+      {id:'B3', t:'ta', l:'Descripción general de la información que requiere', c:'3', req:true, h:'Sea específico: población, periodo, desagregación y territorio.'},
+      {id:'B4', t:'lista', l:'Variables necesarias para suplir el requerimiento', c:'4', req:true},
+      {id:'B5', t:'multi', l:'¿Para qué utilizará la información?', c:'5', o:['Análisis de contexto','Formulación y ejecución de políticas públicas','Seguimiento y evaluación de políticas públicas','Regulación','Control y monitoreo','Gestión institucional','Producción de estadísticas','Reportes internacionales','Otro|ask'], req:true},
+      {id:'B6', t:'multi', l:'Usuarios principales de la información solicitada', c:'6', o:USUARIOS},
+      {id:'B7', t:'multi', l:'Disposiciones normativas a las que responde', c:'7', o:NORMAS},
+      {id:'B7d', t:'ta', l:'Describa el requerimiento que precisa la norma'},
+      {id:'B8', t:'multi', l:'Otros requerimientos a los que responde', c:'8', o:REQUERIMIENTOS},
+      {id:'B9', t:'radio', l:'Entidad que considera debe producir la información', c:'9', o:['DANE','Otra entidad|ask','No sabe'], req:true},
+      {id:'B10a', t:'multi', l:'Opciones que podrían dar solución al requerimiento', c:'10', o:['Aprovechamiento de una operación estadística','Aprovechamiento de un registro administrativo','Generación de nueva información','Otra|ask'], req:true},
+      {id:'B10b', t:'text', l:'Nombre de la operación o registro que se aprovecharía', c:'10'},
+      {id:'B10c', t:'text', l:'Entidad que lo produce', c:'10'},
+      {id:'B10d', t:'multi', l:'¿Cómo se aprovecharía?', c:'10', o:['Incluir variables o preguntas|ask','Cambiar la formulación de alguna pregunta|ask','Ajustar desagregación temática|ask','Ajustar desagregación geográfica|ask','Ajustar la frecuencia de difusión|ask','Otra|ask']},
+      {id:'B11', t:'radio', l:'Nivel de prioridad de la gestión de esta demanda', c:'11', o:['Alta','Media','Baja'], req:true},
+      {id:'B12', t:'multi', l:'Desagregación por grupos requerida', c:'12', o:['Campesinado','Condición de migración','Condición de víctima del conflicto armado','Discapacidad','Edad','Estrato socioeconómico','Identidad de género','Orientación sexual','Pertenencia étnico-racial','Sexo','Otra|ask','Ninguna']},
+      {id:'B13a', t:'multi', l:'Desagregación geográfica requerida', c:'13', o:GEO, req:true},
+      {id:'B13b', t:'multi', l:'Zona requerida', c:'13', o:['Total','Urbano','Rural']},
+      {id:'B14', t:'multi', l:'Periodicidad de difusión requerida', c:'14', o:['Anual','Semestral','Trimestral','Mensual','Otra|ask','No está definido'], req:true}
+    ]},
+    {letra:'C', titulo:'Observaciones', campos:[
+      {id:'C_obs', t:'ta', l:'Observaciones'}
+    ]}
+  ]
+},
+
+/* ------------------------- Anexo 5 · Satisfacción -------------------------- */
+SAT:{
+  cod:'Anexo 5', nombre:'Satisfacción de usuarios de información estadística',
+  titulo:'A1', orden:5,
+  intro:'Lo diligencia la entidad u organización usuaria, desde su rol de usuario de la información que difunde la Alcaldía. Mide accesibilidad, oportunidad y relevancia.',
+  fuente:'https://www.sen.gov.co/sites/default/files/pagina-migraciones-files/2024-03/ManualAnexo5-de-diligenciamiento-satisfaccion-usuarios.pdf',
+  modulos:[
+    {letra:'A', titulo:'Identificación de la entidad que diligencia', campos:[
+      {id:'A1', t:'text', l:'Nombre de la organización o entidad', req:true},
+      {id:'A2', t:'text', l:'Director de la organización o entidad'},
+      {id:'A3', t:'text', l:'Dirección'},
+      {id:'A4', t:'text', l:'Nombre de quien suministra la información', req:true},
+      {id:'A5', t:'text', l:'Cargo'},
+      {id:'A6', t:'text', l:'Teléfono'},
+      {id:'A7', t:'text', l:'Correo electrónico', req:true},
+      {id:'A8', t:'text', l:'Nombre de la dependencia'}
+    ]},
+    {letra:'B', titulo:'Accesibilidad, oportunidad y relevancia', campos:[
+      {id:'B11', t:'matriz', l:'Satisfacción frente a la facilidad para ubicar o consultar la información', c:'B.1',
+        filas:['Resultados de los indicadores o estadísticas','Series históricas','Resultados desagregados a nivel geográfico y temático','Fichas técnicas de los indicadores','Fichas técnicas o documentos metodológicos de operaciones estadísticas','Bases de datos o microdatos'],
+        cols:['Muy satisfecho','Poco satisfecho','Nada satisfecho','No se difunden'], req:true},
+      {id:'B12', t:'matriz', l:'Satisfacción frente a los medios de visualización utilizados', c:'B.1',
+        filas:['Formato Excel','Formato PDF','Imágenes estáticas','Imágenes interactivas','Mapas interactivos (geovisores)'],
+        cols:['Muy satisfecho','Poco satisfecho','Nada satisfecho','No se difunden']},
+      {id:'B21', t:'matriz', l:'Satisfacción frente a la oportunidad con que se difunde la información', c:'B.2',
+        filas:['Resultados de los indicadores o estadísticas','Series históricas','Resultados desagregados a nivel geográfico y temático','Fichas técnicas de los indicadores','Fichas técnicas o documentos metodológicos','Bases de datos o microdatos'],
+        cols:['Muy satisfecho','Poco satisfecho','Nada satisfecho','No se difunden'], req:true},
+      {id:'B31', t:'matriz', l:'Relevancia de la información para el desempeño de sus funciones', c:'B.3',
+        filas:['Indicadores del CONPES 3918 de 2018 (ODS)','Indicadores para reporte a la OCDE','Indicadores de los planes decenales','Indicadores de resultado del Plan de Desarrollo o del Plan Estratégico'],
+        cols:['Muy relevante','Poco relevante','Nada relevante']},
+      {id:'B32', t:'radio', l:'¿Requiere información estadística que hoy no está cubierta?', c:'B.3', o:['Sí','No'], req:true},
+      {id:'B32d', t:'ta', l:'¿Cuáles?', h:'Estas respuestas alimentan directamente el formulario F2.'}
+    ]},
+    {letra:'C', titulo:'Aspectos por mejorar y observaciones', campos:[
+      {id:'C1', t:'multi', l:'Aspectos que deben mejorarse en la difusión de información estadística', c:'C',
+        o:['Oportunidad de la información estadística','Organización e identificación de la información','Visualización y descarga de los datos','Accesibilidad a series de tiempo','Accesibilidad a resultados desagregados a nivel geográfico','Accesibilidad a resultados desagregados a nivel temático','Accesibilidad a fichas técnicas de los indicadores','Accesibilidad a fichas técnicas de las operaciones estadísticas','Accesibilidad a fichas técnicas de los registros administrativos','Cronogramas de difusión','Análisis de resultados'], req:true},
+      {id:'D_obs', t:'ta', l:'Observaciones'},
+      {id:'D_fecha', t:'date', l:'Fecha de diligenciamiento', req:true}
+    ]}
+  ]
+},
+
+/* ------------------ Evidencia · Formatos sin base de datos ni llave --------- */
+SIN_BD:{
+  cod:'Sin base de datos', nombre:'Formatos revisados sin base de datos ni llave',
+  titulo:'X1', orden:6,
+  intro:'Deja constancia de los formatos que se revisaron en la mesa y que NO tienen base de datos ni llave, por lo cual no se caracterizan como registro administrativo del DANE. Sirve como evidencia de que el formato fue evaluado.',
+  modulos:[
+    {letra:'A', titulo:'Formato revisado', campos:[
+      {id:'X1', t:'text', l:'Nombre del documento', req:true},
+      {id:'X_dep', t:'text', l:'Dependencia'},
+      {id:'X_bd', t:'radio', l:'¿Tiene base de datos?', o:['Sí','No']},
+      {id:'X_llave', t:'text', l:'Llave (campo identificador)'},
+      {id:'X_estado', t:'text', l:'Determinación de la mesa'},
+      {id:'X_obs', t:'ta', l:'Observaciones'}
+    ]}
+  ]
+}
+};
+
+const CLAVES = Object.keys(ESQUEMAS).sort((a,b)=>ESQUEMAS[a].orden-ESQUEMAS[b].orden);
+
+/* =======================================================================
+   4. ESTADO
+   ===================================================================== */
+let perfil = {};
+let registros = {};
+let catalogo = [];                                  // Listado Maestro: {dep, proceso, codigo, nombre, version, tipo, bd, llave}
+let soloBD = false;                                 // filtro: mostrar solo formatos ya marcados con base de datos y llave
+let conexion = {modo:'ninguno', url:'', token:'', tabla:'respuestas'};
+let vista = 'perfil';
+let actual = null;   // registro en edición
+
+const dependencias = () => [...new Set(catalogo.map(f=>f.dep).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));
+const formatosDe = dep => catalogo.filter(f=>f.dep===dep);
+const procesosDe = dep => [...new Set(formatosDe(dep).map(f=>f.proceso).filter(Boolean))];
+function registroDeFormato(codigo){
+  const c = (codigo||'').trim().toLowerCase(); if(!c) return null;
+  for(const k of CLAVES) for(const r of (registros[k]||[]))
+    if((r.datos.sg_codigo||'').trim().toLowerCase().startsWith(c)) return {clave:k, r};
+  return null;
+}
+// Reconoce la columna "Tipo" con tolerancia a tildes, mayúsculas, plurales
+// y a las abreviaturas de los formatos del DANE (F1/F3/A2).
+function tipoAFormato(txt){
+  const t = (txt||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+  if(!t) return null;
+  if(t.includes('registro') || t.includes('administrativo') || t.includes('f3')) return 'F3';
+  if(t.includes('operacion') || t.includes('estadistica') || t.includes('f1')) return 'F1';
+  if(t.includes('indicador') || t.includes('a2') || t.includes('anexo 2')) return 'A2';
+  return null;
+}
+
+/* =======================================================================
+   5. UTILIDADES
+   ===================================================================== */
+const el = (t,p={},...h)=>{const n=document.createElement(t);for(const k in p){if(k==='cls')n.className=p[k];else if(k.startsWith('on'))n.addEventListener(k.slice(2),p[k]);else if(p[k]!==undefined&&p[k]!==null)n.setAttribute(k,p[k]);}h.flat().forEach(c=>c!=null&&n.append(c.nodeType?c:document.createTextNode(c)));return n;};
+const partes = o => { const i=o.indexOf('|'); return i<0 ? [o,false] : [o.slice(0,i), o.slice(i+1)==='ask']; };
+
+function aTexto(v){
+  if(v==null||v==='') return '';
+  if(typeof v==='string') return v;
+  if(Array.isArray(v)) return v.map(x=> typeof x==='string'? x : Object.values(x).filter(Boolean).join('; ')).filter(Boolean).join(' | ');
+  if(v.sel!==undefined){
+    const s = Array.isArray(v.sel)? v.sel : (v.sel? [v.sel]:[]);
+    return s.map(o => v.det && v.det[o] ? o+' ('+v.det[o]+')' : o).join(' | ');
+  }
+  return Object.entries(v).filter(([,x])=>x).map(([k,x])=>k+': '+x).join(' | ');
+}
+function lleno(v){ return aTexto(v).trim().length>0; }
+
+function requeridos(clave){
+  const out=[]; ESQUEMAS[clave].modulos.forEach(m=>m.campos.forEach(c=>{ if(c.req) out.push(c.id); }));
+  return out;
+}
+function avance(clave, datos){
+  const r = requeridos(clave); if(!r.length) return 1;
+  return r.filter(id=>lleno(datos[id])).length / r.length;
+}
+function tituloRegistro(clave, datos){
+  const t = datos[ESQUEMAS[clave].titulo];
+  return (typeof t==='string' && t.trim()) ? t.trim() : 'Sin título';
+}
+
+/* =======================================================================
+   6. RENDERIZADO DE CAMPOS
+   ===================================================================== */
+function campo(c, datos){
+  const caja = el('div',{cls:'campo'});
+  const rotulo = el('div',{cls:'rotulo'+(c.req?' req':'')}, c.c? el('span',{cls:'cod'},c.c):null, c.l);
+  caja.append(rotulo);
+  if(c.h) caja.append(el('p',{cls:'ayuda'},c.h));
+  const set = v => { datos[c.id] = v; marcarSucio(); };
+
+  if(['text','ta','month','date'].includes(c.t)){
+    const n = c.t==='ta' ? el('textarea',{}) : el('input',{type: c.t==='text'?'text':c.t});
+    n.value = datos[c.id] ?? c.val ?? '';
+    if(n.value) datos[c.id]=n.value;
+    n.addEventListener('input', ()=>set(n.value));
+    caja.append(n);
+  }
+  else if(c.t==='select'){
+    const s = el('select',{});
+    s.append(el('option',{value:''},'— Seleccione —'));
+    c.o.forEach(o=>{const [txt]=partes(o); s.append(el('option',{value:txt},txt));});
+    s.value = datos[c.id] ?? '';
+    s.addEventListener('change', ()=>{ set(s.value); if(c.alCambiar) c.alCambiar(s.value); });
+    caja.append(s);
+  }
+  else if(c.t==='multi' || c.t==='radio'){
+    const multi = c.t==='multi';
+    const v = datos[c.id] ?? {sel: multi?[]:'', det:{}};
+    datos[c.id]=v;
+    const cont = el('div',{cls:'ops'+(c.o.length>7?' dos':'')});
+    c.o.forEach((o,i)=>{
+      const [txt, pide] = partes(o);
+      const marcado = multi ? v.sel.includes(txt) : v.sel===txt;
+      const inp = el('input',{type: multi?'checkbox':'radio', name:c.id+'_r', value:txt});
+      inp.checked = marcado;
+      const cuerpo = el('div',{cls:'op-cuerpo'}, el('span',{},txt));
+      let det=null;
+      if(pide){
+        det = el('input',{type:'text', cls:'det', placeholder:'¿Cuál(es)?'});
+        det.value = v.det[txt] ?? '';
+        det.style.display = marcado ? 'block':'none';
+        det.addEventListener('input',()=>{ v.det[txt]=det.value; set(v); });
+        cuerpo.append(det);
+      }
+      inp.addEventListener('change',()=>{
+        if(multi){ v.sel = inp.checked ? [...v.sel, txt] : v.sel.filter(x=>x!==txt); }
+        else { v.sel = txt; cont.querySelectorAll('.det').forEach(d=>d.style.display='none'); }
+        if(det) det.style.display = inp.checked ? 'block':'none';
+        set(v);
+      });
+      cont.append(el('label',{cls:'op'}, inp, cuerpo));
+    });
+    caja.append(cont);
+  }
+  else if(c.t==='lista'){
+    const v = Array.isArray(datos[c.id]) ? datos[c.id] : [''];
+    datos[c.id]=v;
+    const cont = el('div',{cls:'lista'});
+    const pintar = ()=>{
+      cont.innerHTML='';
+      v.forEach((val,i)=>{
+        const inp = el('input',{type:'text', value:val});
+        inp.addEventListener('input',()=>{v[i]=inp.value; set(v);});
+        const quitar = el('button',{cls:'mini', type:'button', onclick:()=>{v.splice(i,1); if(!v.length)v.push(''); set(v); pintar();}},'×');
+        cont.append(el('div',{cls:'fila'}, el('span',{},String(i+1)), inp, quitar));
+      });
+      cont.append(el('button',{cls:'mini', type:'button', onclick:()=>{v.push(''); set(v); pintar();}},'+ Agregar renglón'));
+    };
+    pintar(); caja.append(cont);
+  }
+  else if(c.t==='tabla'){
+    const v = Array.isArray(datos[c.id]) ? datos[c.id] : [];
+    if(!v.length) v.push(Object.fromEntries(c.cols.map(k=>[k,''])));
+    datos[c.id]=v;
+    const cont = el('div',{});
+    const pintar = ()=>{
+      cont.innerHTML='';
+      const tb = el('table',{cls:'rejilla'});
+      tb.append(el('thead',{}, el('tr',{}, ...c.cols.map(k=>el('th',{},k)), el('th',{},''))));
+      const body = el('tbody',{});
+      v.forEach((fila,i)=>{
+        const tr = el('tr',{});
+        c.cols.forEach(k=>{
+          const inp = el('input',{type:'text', value: fila[k]??''});
+          inp.addEventListener('input',()=>{fila[k]=inp.value; set(v);});
+          tr.append(el('td',{}, inp));
+        });
+        tr.append(el('td',{}, el('button',{cls:'mini', type:'button', onclick:()=>{v.splice(i,1); if(!v.length)v.push(Object.fromEntries(c.cols.map(k=>[k,'']))); set(v); pintar();}},'×')));
+        body.append(tr);
+      });
+      tb.append(body); cont.append(tb);
+      cont.append(el('button',{cls:'mini', type:'button', style:'margin-top:7px', onclick:()=>{v.push(Object.fromEntries(c.cols.map(k=>[k,'']))); set(v); pintar();}},'+ Agregar fila'));
+    };
+    pintar(); caja.append(cont);
+  }
+  else if(c.t==='matriz'){
+    const v = datos[c.id] ?? {}; datos[c.id]=v;
+    const tb = el('table',{cls:'rejilla matriz'});
+    tb.append(el('thead',{}, el('tr',{}, el('th',{},''), ...c.cols.map(k=>el('th',{},k)))));
+    const body = el('tbody',{});
+    c.filas.forEach((f,i)=>{
+      const tr = el('tr',{}, el('td',{},f));
+      c.cols.forEach(col=>{
+        const inp = el('input',{type:'radio', name:c.id+'_'+i, value:col});
+        inp.checked = v[f]===col;
+        inp.addEventListener('change',()=>{v[f]=col; set(v);});
+        tr.append(el('td',{}, inp));
+      });
+      body.append(tr);
+    });
+    tb.append(body); caja.append(tb);
+  }
+  return caja;
+}
+
+/* =======================================================================
+   7. VISTAS
+   ===================================================================== */
+let sucio=false;
+function marcarSucio(){ sucio=true; const b=document.getElementById('ecoGuardar'); if(b) b.textContent='Cambios sin guardar'; }
+
+function pintarNav(){
+  const base = document.getElementById('navBase');
+  const forms = document.getElementById('navForms');
+  const fin = document.getElementById('navFin');
+  base.innerHTML=''; forms.innerHTML=''; fin.innerHTML='';
+
+  const item = (destino, orden, tit, cod, cuenta)=>{
+    const b = el('button',{'aria-current': vista===destino?'true':'false', onclick:()=>ir(destino)},
+      el('span',{cls:'orden'}, orden),
+      el('span',{}, el('span',{cls:'tit'},tit), cod? el('span',{cls:'cod'},cod):null),
+      cuenta!=null ? el('span',{cls:'pastilla'+(cuenta?' viva':'')}, String(cuenta)) : null);
+    return el('li',{}, b);
+  };
+  base.append(item('catalogo','·','Catálogo SIGAMI','Listado Maestro cargado', catalogo.length||null));
+  base.append(item('perfil','·','Ficha de la mesa','Dependencia y responsables'));
+  base.append(item('formatos','·','Formatos de mi dependencia','Lo aprobado en el SIGAMI', perfil.dep ? formatosDe(perfil.dep).length : null));
+  CLAVES.forEach((k,i)=>forms.append(item(k, String(i+1), ESQUEMAS[k].nombre, ESQUEMAS[k].cod, (registros[k]||[]).length)));
+  fin.append(item('consolidado','·','Consolidado y exportación','CSV y respaldo JSON'));
+
+  const total = CLAVES.reduce((s,k)=>s+(registros[k]||[]).length,0);
+  document.getElementById('cifraTotal').textContent = total;
+  const conAlgo = CLAVES.filter(k=>(registros[k]||[]).length).length;
+  document.getElementById('barraTotal').style.width = (conAlgo/CLAVES.length*100)+'%';
+
+  const av = document.getElementById('aviso');
+  if(!persistente || motor==='memoria'){
+    av.style.display='block';
+    av.innerHTML = '<b>Este navegador no está guardando de forma permanente.</b> Lo diligenciado se conserva mientras la pestaña siga abierta. Antes de cerrar, vaya a <em>Consolidado</em> y descargue el respaldo JSON y los CSV.';
+  } else av.style.display='none';
+}
+
+function ir(v){ vista=v; actual=null; pintar(); window.scrollTo({top:0}); }
+
+function pintar(){
+  pintarNav();
+  const p = document.getElementById('panel'); p.innerHTML='';
+  if(vista==='perfil') vistaPerfil(p);
+  else if(vista==='catalogo') vistaCatalogo(p);
+  else if(vista==='formatos') vistaFormatos(p);
+  else if(vista==='consolidado') vistaConsolidado(p);
+  else if(actual) vistaEditor(p, vista);
+  else vistaLista(p, vista);
+}
+
+/* ---- Ficha de la mesa ---- */
+function vistaPerfil(p){
+  p.append(el('div',{cls:'cab'},
+    el('p',{cls:'eyebrow'},'Paso previo'),
+    el('h2',{},'Ficha de la mesa'),
+    el('p',{},'Diligéncielo una sola vez. Estos datos se copian automáticamente en el módulo de identificación de los cinco formatos, para no volver a escribir lo mismo cinco veces.')));
+
+  const deps = dependencias();
+  const campoDep = deps.length
+    ? {id:'dep', t:'select', l:'Dependencia', o:deps, req:true, h:'Tomada del Listado Maestro cargado en el catálogo del SIGAMI.',
+       alCambiar:(v)=>{ perfil.proceso=''; store.set(K('perfil'), perfil); pintar(); }}
+    : {id:'dep', t:'text', l:'Dependencia', req:true, h:'Cargue el Listado Maestro en «Catálogo SIGAMI» para elegirla de una lista y ver sus formatos aprobados.'};
+  const procDep = perfil.dep ? procesosDe(perfil.dep) : [];
+  const campoProc = procDep.length
+    ? {id:'proceso', t:'select', l:'Proceso misional del SIGAMI', o:procDep, req:true, h:'Procesos de esta dependencia según el Listado Maestro. Los nombres son los de la plantilla.'}
+    : {id:'proceso', t:'select', l:'Proceso misional del SIGAMI', o:PROCESOS, req:true, h: perfil.dep ? 'Esta dependencia no tiene procesos en el catálogo; elija de la lista general.' : 'Elija primero la dependencia.'};
+
+  const campos = [
+    campoDep,
+    campoProc,
+    {id:'jefe', t:'text', l:'Jefe o director de la dependencia', req:true},
+    {id:'cargoJefe', t:'text', l:'Cargo del jefe'},
+    {id:'correoJefe', t:'text', l:'Correo del jefe'},
+    {id:'telJefe', t:'text', l:'Teléfono del jefe'},
+    {id:'tec', t:'text', l:'Responsable técnico del dato', req:true, h:'Quien maneja la base o el formato en el día a día.'},
+    {id:'tecCargo', t:'text', l:'Cargo del responsable técnico'},
+    {id:'tecCorreo', t:'text', l:'Correo del responsable técnico', req:true},
+    {id:'tecTel', t:'text', l:'Teléfono del responsable técnico'},
+    {id:'tema', t:'select', l:'Área temática y tema principal predominante', o:OPC_TEMA, h:'Se usa como valor inicial; en cada formato puede cambiarlo.'}
+  ];
+  const mod = el('div',{cls:'modulo'},
+    el('header',{}, el('span',{cls:'letra'},'01'), el('h3',{},'Datos de la dependencia')),
+    el('div',{cls:'cuerpo'}, ...campos.map(c=>campo(c, perfil))));
+  p.append(mod);
+
+  p.append(el('div',{cls:'acciones'},
+    el('button',{cls:'btn', onclick: async()=>{ await store.set(K('perfil'), perfil); sucio=false; pintar(); }},'Guardar ficha'),
+    perfil.dep && formatosDe(perfil.dep).length ? el('button',{cls:'btn sec', onclick:()=>ir('formatos')},'Ver mis formatos aprobados →') : null,
+    el('span',{cls:'eco', id:'ecoGuardar'}, sucio?'Cambios sin guardar':'')));
+}
+
+/* ---- Lista de registros de un formato ---- */
+function vistaLista(p, clave){
+  const e = ESQUEMAS[clave];
+  const lista = registros[clave] || [];
+  p.append(el('div',{cls:'cab'},
+    el('p',{cls:'eyebrow'}, e.cod),
+    el('h2',{}, e.nombre),
+    el('p',{}, e.intro),
+    el('p',{}, el('a',{href:e.fuente, target:'_blank', rel:'noopener'},'Manual de diligenciamiento del DANE →'))));
+
+  if(!lista.length){
+    p.append(el('div',{cls:'vacio'}, el('strong',{},'Todavía no hay nada en esta mesa'), 'Cada formato se diligencia una vez por cada operación, registro, indicador o demanda identificada.'));
+  } else {
+    const fichas = el('div',{cls:'fichas'});
+    lista.forEach((r,i)=>{
+      const pct = Math.round(avance(clave, r.datos)*100);
+      fichas.append(el('div',{cls:'ficha'},
+        el('span',{cls:'meta'}, String(i+1).padStart(2,'0')),
+        el('span',{cls:'nom'}, tituloRegistro(clave, r.datos)),
+        el('span',{cls:'estado'+(pct===100?' ok':'')}, pct===100?'Completo':pct+'% campos clave'),
+        el('button',{cls:'mini', onclick:()=>{actual=r; pintar();}},'Abrir'),
+        el('button',{cls:'mini', onclick:()=>{ if(confirm('¿Eliminar este registro? No se puede deshacer.')){ registros[clave]=lista.filter(x=>x!==r); guardarLista(clave); pintar(); } }},'Eliminar')));
+    });
+    p.append(fichas);
+  }
+  p.append(el('div',{cls:'acciones'},
+    el('button',{cls:'btn', onclick:()=>{ actual = nuevoRegistro(clave); pintar(); }},'Diligenciar un nuevo '+e.cod.split('·').pop().trim())));
+}
+
+/* Registra evidencia de que un formato NO tiene base de datos ni llave,
+   la guarda y la envía a la base de datos, y marca el formato como revisado. */
+async function registrarSinBD(f){
+  const hoy = new Date().toISOString().slice(0,10);
+  const datos = {
+    X1: f.nombre || '',
+    X_dep: perfil.dep || f.dep || '',
+    X_bd: {sel:'No', det:{}},
+    X_llave: '',
+    X_estado: 'No tiene base de datos ni llave',
+    sg_codigo: f.codigo + (f.version ? ' v.'+f.version : ''),
+    sg_proceso: f.proceso || perfil.proceso || ''
+  };
+  const r = {id:'sinbd'+Date.now()+Math.random().toString(36).slice(2,6), creado:hoy, actualizado:new Date().toISOString().slice(0,16).replace('T',' '), datos};
+  const l = registros['SIN_BD'] || (registros['SIN_BD']=[]);
+  l.push(r);
+  // Deja marcada la evidencia también en el catálogo.
+  f.bd = 'No'; f.llave = ''; f.sinBD = true;
+  await store.set(K('catalogo'), catalogo);
+  // Guarda localmente el registro de evidencia.
+  await store.set(K('reg:SIN_BD'), registros['SIN_BD']);
+  // Envía a la base de datos ese registro específico (si hay conexión).
+  let aviso = 'Registrado: «'+(f.nombre||f.codigo)+'» quedó marcado como formato sin base de datos ni llave.';
+  if(conexion.modo!=='ninguno' && conexion.url){
+    try{ await enviar('SIN_BD', r); r.sync = new Date().toISOString().slice(0,16).replace('T',' '); delete r.syncError; aviso += '\n\nEnviado a la base de datos.'; }
+    catch(err){ r.syncError = String(err.message||err); aviso += '\n\nNo se pudo enviar a la base de datos: '+r.syncError+'\nQuedó guardado y se reintenta al sincronizar.'; }
+    await store.set(K('reg:SIN_BD'), registros['SIN_BD']);
+  } else {
+    aviso += '\n\n(La conexión con la base de datos no está configurada; la evidencia queda guardada y se enviará al sincronizar.)';
+  }
+  pintar();
+  return aviso;
+}
+
+function nuevoRegistro(clave, fmt){
+  const datos = {};
+  // Precarga desde la ficha de la mesa
+  const mapa = {A_dep:'dep', A_jefe:'jefe', A_cargoJefe:'cargoJefe', A_correoJefe:'correoJefe', A_telJefe:'telJefe',
+                A_tec:'tec', A_tecCargo:'tecCargo', A_tecCorreo:'tecCorreo', A_tecTel:'tecTel'};
+  for(const k in mapa) if(perfil[mapa[k]]) datos[k]=perfil[mapa[k]];
+  if(perfil.tema){ datos.A_tema=perfil.tema; datos.A2=perfil.tema; datos.A3=perfil.tema; }
+  if(perfil.dep){ datos.A8=perfil.dep; }
+  if(perfil.jefe){ datos.A2 = clave==='A2'||clave==='SAT' ? perfil.jefe : datos.A2; }
+  if(perfil.tec){ datos.A4=perfil.tec; datos.D_quien=perfil.tec; }
+  if(perfil.tecCargo){ datos.A5=perfil.tecCargo; datos.D_cargo=perfil.tecCargo; }
+  if(perfil.tecTel) datos.A6=perfil.tecTel;
+  if(perfil.tecCorreo) datos.A7=perfil.tecCorreo;
+  if(perfil.proceso) datos.sg_proceso = perfil.proceso;
+  if(fmt){
+    datos.sg_codigo = fmt.codigo + (fmt.version ? ' v.'+fmt.version : '');
+    datos.sg_nombre = fmt.nombre || '';
+    datos.sg_proceso = fmt.proceso || datos.sg_proceso;
+    if(clave==='F3'){
+      datos.B1_nombre = fmt.nombre; datos.B1_version = fmt.version||'';
+      if(fmt.llave && fmt.llave.trim()) datos.B10 = fmt.llave.trim();
+      if(tieneBD(fmt)) datos.B19 = {sel:'Sí', det:{}};
+    }
+    if(clave==='F1'){ datos.B1 = fmt.nombre; }
+    if(clave==='A2'){ datos.B1 = fmt.nombre; }
+  }
+  const hoy = new Date().toISOString().slice(0,10);
+  datos.D_fecha = hoy;
+  return {id:'r'+Date.now()+Math.random().toString(36).slice(2,6), creado:hoy, datos};
+}
+
+/* Construye la sección "Puente con el SIGAMI" con un selector de formatos
+   que solo lista los que tienen base de datos y llave de la dependencia,
+   y al elegir uno arrastra el código y el nombre. */
+function camposPuente(datos, clave){
+  const out = [];
+
+  // 1. Proceso misional (limitado a los de la dependencia si hay catálogo)
+  const procDep = perfil.dep ? procesosDe(perfil.dep) : [];
+  const cProc = procDep.length
+    ? {id:'sg_proceso', t:'select', l:'Proceso misional del SIGAMI al que pertenece', o:procDep, req:true, h:'Procesos de esta dependencia según el Listado Maestro.'}
+    : {id:'sg_proceso', t:'select', l:'Proceso misional del SIGAMI al que pertenece', o:PROCESOS, req:true, h:'Determina la mesa de trabajo y el responsable de la codificación posterior.'};
+  out.push(campo(cProc, datos));
+
+  // 2. Selector de formato del Listado Maestro (solo con base de datos y llave)
+  const califican = perfil.dep ? formatosDe(perfil.dep).filter(calificaF3) : [];
+  const codDe = f => f.codigo + (f.version ? ' v.'+f.version : '');
+
+  const caja = el('div',{cls:'campo'});
+  caja.append(el('div',{cls:'rotulo req'}, 'Formato del Listado Maestro (con base de datos y llave)'));
+  caja.append(el('p',{cls:'ayuda'}, perfil.dep
+    ? 'Seleccione el formato aprobado de «'+perfil.dep+'». Al elegirlo se traen el código y el nombre. Solo aparecen los formatos con base de datos y llave.'
+    : 'Primero elija la dependencia en la ficha de la mesa.'));
+
+  const sel = el('select',{});
+  sel.append(el('option',{value:''}, califican.length? '— Seleccione un formato —' : 'No hay formatos con base de datos y llave en esta dependencia'));
+  califican.forEach(f=> sel.append(el('option',{value:codDe(f)}, codDe(f)+' · '+(f.nombre||''))));
+  sel.append(el('option',{value:'__manual'}, '— Escribir el código a mano —'));
+
+  const codActual = (datos.sg_codigo||'').trim();
+  const existe = califican.some(f=>codDe(f)===codActual);
+  sel.value = datos.__manualCod ? '__manual' : (codActual ? (existe? codActual : '__manual') : '');
+
+  sel.addEventListener('change', ()=>{
+    if(sel.value==='__manual'){ datos.__manualCod=true; datos.sg_codigo=''; datos.sg_nombre=''; marcarSucio(); pintar(); return; }
+    datos.__manualCod=false;
+    datos.sg_codigo = sel.value;
+    const f = califican.find(x=>codDe(x)===sel.value);
+    if(f){
+      datos.sg_nombre = f.nombre || '';
+      if(f.proceso) datos.sg_proceso = f.proceso;
+      // Arrastra el nombre al campo propio del formato, según el tipo.
+      if(clave==='F3'){ datos.B1_nombre = f.nombre; datos.B1_version = f.version||''; }
+      else if(clave==='F1' || clave==='A2'){ datos.B1 = f.nombre; }
+    } else { datos.sg_nombre=''; }
+    marcarSucio(); pintar();
+  });
+  caja.append(sel);
+  out.push(caja);
+
+  // 2b. Si eligió "escribir a mano", campo de texto para el código
+  if(datos.__manualCod){
+    out.push(campo({id:'sg_codigo', t:'text', l:'Código (escrito a mano)', h:'Ej.: FOR-GD-012 v.3'}, datos));
+  }
+
+  // 3. Nombre traído del formato (solo lectura)
+  if(datos.sg_nombre){
+    const cn = el('div',{cls:'campo'});
+    cn.append(el('div',{cls:'rotulo'}, 'Nombre del formato'));
+    const inn = el('input',{type:'text', readonly:'readonly', style:'background:#F2EFE4'});
+    inn.value = datos.sg_nombre;
+    cn.append(inn);
+    out.push(cn);
+  }
+
+  // 4. Soporte o evidencia
+  out.push(campo({id:'sg_soporte', t:'text', l:'Soporte o evidencia adjunta', h:'Nombre del archivo, formato o pantallazo que respalda lo diligenciado.'}, datos));
+
+  return out;
+}
+
+/* ---- Editor ---- */
+function vistaEditor(p, clave){
+  const e = ESQUEMAS[clave];
+  const r = actual;
+  p.append(el('div',{cls:'cab'},
+    el('p',{cls:'eyebrow'}, e.cod + ((registros[clave]||[]).includes(r) ? ' · registro guardado' : ' · nuevo registro')),
+    el('h2',{}, e.nombre),
+    el('p',{}, 'Los campos marcados con • son los mínimos para que el formato se considere completo en la mesa.')));
+
+  const pu = el('div',{cls:'puente'},
+    el('h4',{},'Puente con el SIGAMI'),
+    el('p',{},'Uso interno de la Alcaldía. No se envía al DANE: sirve para codificar después el instrumento como documento controlado del sistema.'),
+    ...camposPuente(r.datos, clave));
+  p.append(pu);
+
+  e.modulos.forEach((m,i)=>{
+    const cuerpo = el('div',{cls:'cuerpo'}, ...m.campos.map(c=>campo(c, r.datos)));
+    const cab = el('header',{}, el('span',{cls:'letra'}, m.letra), el('h3',{}, m.titulo), el('span',{cls:'chev'}, i===0?'−':'+'));
+    const mod = el('div',{cls:'modulo'+(i===0?'':' cerrado')}, cab, cuerpo);
+    cab.addEventListener('click', ()=>{ mod.classList.toggle('cerrado'); cab.querySelector('.chev').textContent = mod.classList.contains('cerrado')?'+':'−'; });
+    p.append(mod);
+  });
+
+  p.append(el('div',{cls:'acciones'},
+    el('button',{cls:'btn', onclick:async()=>{
+      // La base de datos y la llave son obligatorias para todo registro administrativo (F3).
+      if(clave==='F3'){
+        const bd = aTexto(r.datos.B19).trim();
+        const llave = (r.datos.B10||'').trim();
+        const faltan = [];
+        if(!bd) faltan.push('· ¿La información se almacena en una base de datos? (B19)');
+        if(!llave) faltan.push('· Variable llave o de identificación única (B10)');
+        if(faltan.length){
+          alert('No se puede guardar este registro administrativo sin la base de datos y la llave.\n\nFalta diligenciar:\n'+faltan.join('\n'));
+          return;
+        }
+      }
+      const l = registros[clave] || (registros[clave]=[]);
+      if(!l.includes(r)) l.push(r);
+      r.actualizado = new Date().toISOString().slice(0,16).replace('T',' ');
+      await guardarLista(clave);
+      sucio=false;
+      document.getElementById('ecoGuardar').textContent = 'Guardado a las ' + r.actualizado.slice(11);
+      pintarNav();
+    }},'Guardar formato'),
+    el('button',{cls:'btn sec', onclick:()=>{ if(sucio && !confirm('Hay cambios sin guardar. ¿Salir de todos modos?')) return; actual=null; sucio=false; pintar(); }},'Volver a la lista'),
+    el('span',{cls:'eco', id:'ecoGuardar'}, sucio?'Cambios sin guardar':'')));
+}
+
+async function guardarLista(clave, sinEnviar){
+  await store.set(K('reg:'+clave), registros[clave]||[]);
+  if(sinEnviar || conexion.modo==='ninguno' || !conexion.url) return;
+  const r = actual; if(!r) return;
+  try{ await enviar(clave, r); r.sync = new Date().toISOString().slice(0,16).replace('T',' '); delete r.syncError; }
+  catch(err){ r.syncError = String(err.message||err); }
+  await store.set(K('reg:'+clave), registros[clave]||[]);
+}
+
+/* ---- Consolidado ---- */
+function vistaConsolidado(p){
+  p.append(el('div',{cls:'cab'},
+    el('p',{cls:'eyebrow'},'Cierre de la mesa'),
+    el('h2',{},'Consolidado y exportación'),
+    el('p',{},'Descargue un CSV por formato para pegarlo en los archivos oficiales del DANE, y guarde el respaldo JSON para retomar el trabajo o unir el aporte de varias dependencias.')));
+
+  const t = el('table',{cls:'tabla-cons'});
+  t.append(el('thead',{}, el('tr',{}, el('th',{},'Formato'), el('th',{},'Registros'), el('th',{},'Completos'), el('th',{},'Descargar'))));
+  const tb = el('tbody',{});
+  CLAVES.forEach(k=>{
+    const l = registros[k]||[];
+    const completos = l.filter(r=>avance(k,r.datos)===1).length;
+    tb.append(el('tr',{},
+      el('td',{}, el('strong',{},ESQUEMAS[k].cod), el('div',{style:'color:#5E6B6A;font-size:12px'}, ESQUEMAS[k].nombre)),
+      el('td',{cls:'n'}, String(l.length)),
+      el('td',{cls:'n'}, String(completos)),
+      el('td',{}, el('button',{cls:'mini', onclick:()=>bajarCSV(k)},'CSV'))));
+  });
+  t.append(tb); p.append(t);
+
+  const estados = CLAVES.flatMap(k=>(registros[k]||[])).filter(r=>r.sync).length;
+  const totalReg = CLAVES.reduce((s,k)=>s+(registros[k]||[]).length,0);
+  const conf = el('div',{cls:'puente', style:'margin-top:18px'},
+    el('h4',{},'Base de datos común'),
+    el('p',{}, conexion.modo==='ninguno'
+      ? 'Sin conexión configurada: por ahora todo vive en este dispositivo. Configure el destino para que lo diligenciado por cada funcionario llegue a una sola base.'
+      : estados+' de '+totalReg+' registros ya están en la base de datos.'),
+    ...[
+      {id:'modo', t:'radio', l:'Destino', o:['ninguno','sheets','supabase'],
+       h:'sheets: hoja de cálculo de Google mediante Apps Script, la vía más rápida. supabase: base de datos PostgreSQL, mejor para conectar Power BI.'},
+      {id:'url', t:'text', l:'URL del destino', h:'Apps Script: la URL que termina en /exec. Supabase: https://xxxx.supabase.co'},
+      {id:'token', t:'text', l:'Clave o token', h:'Apps Script: la palabra clave definida en el script. Supabase: la clave anon.'},
+      {id:'tabla', t:'text', l:'Tabla (solo Supabase)'}
+    ].map(c=>{
+      const v = {};
+      if(c.t==='radio') v[c.id] = {sel:conexion.modo, det:{}}; else v[c.id] = conexion[c.id] || '';
+      const nodo = campo(c, v);
+      const leer = ()=>{ conexion[c.id] = (c.t==='radio') ? v[c.id].sel : v[c.id]; };
+      nodo.addEventListener('input', leer); nodo.addEventListener('change', leer);
+      return nodo;
+    }),
+    el('div',{cls:'acciones', style:'position:static;background:none;padding:6px 0 0'},
+      el('button',{cls:'btn sec', onclick:async()=>{ await store.set(K('conexion'), conexion); pintar(); }},'Guardar conexión'),
+      el('button',{cls:'btn sec', onclick:()=>{
+        if(!conexion.url){ alert('Primero escriba la URL del destino.'); return; }
+        const u = location.origin + location.pathname + '?modo=' + encodeURIComponent(conexion.modo) +
+                  '&bd=' + encodeURIComponent(conexion.url) + '&clave=' + encodeURIComponent(conexion.token||'') +
+                  (conexion.tabla? '&tabla='+encodeURIComponent(conexion.tabla):'');
+        navigator.clipboard.writeText(u).then(
+          ()=>alert('Enlace copiado. Envíelo a los funcionarios: al abrirlo quedan conectados a la base sin configurar nada.'),
+          ()=>prompt('Copie este enlace y envíelo a los funcionarios:', u));
+      }},'Copiar enlace de la mesa'),
+      el('button',{cls:'btn', onclick:()=>sincronizar(false)},'Enviar todo a la base de datos'),
+      el('button',{cls:'btn sec', onclick:()=>sincronizar(true)},'Enviar solo lo pendiente')));
+  p.append(conf);
+
+  p.append(el('div',{cls:'acciones'},
+    el('button',{cls:'btn', onclick:bajarJSON},'Descargar respaldo JSON'),
+    el('button',{cls:'btn sec', onclick:subirJSON},'Cargar respaldo JSON'),
+    el('button',{cls:'btn peligro', onclick:async()=>{
+      if(!confirm('Se borrará todo lo diligenciado en este dispositivo. ¿Continuar?')) return;
+      registros={}; for(const k of CLAVES) await store.set(K('reg:'+k), []);
+      pintar();
+    }},'Borrar todo')));
+}
+
+function csvEscape(s){ s=String(s??''); return /[",\n;]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s; }
+function bajarCSV(clave){
+  const e = ESQUEMAS[clave]; const l = registros[clave]||[];
+  if(!l.length){ alert('Este formato todavía no tiene registros.'); return; }
+  const cols = [{id:'sg_proceso',l:'SIGAMI · proceso misional'},{id:'sg_codigo',l:'SIGAMI · código Listado Maestro'},{id:'sg_nombre',l:'SIGAMI · nombre del formato'},{id:'sg_soporte',l:'SIGAMI · soporte'}];
+  e.modulos.forEach(m=>m.campos.forEach(c=>cols.push({id:c.id, l:(c.c? c.c+' ':'')+c.l})));
+  const filas = [cols.map(c=>csvEscape(c.l)).join(';')];
+  l.forEach(r=>filas.push(cols.map(c=>csvEscape(aTexto(r.datos[c.id]))).join(';')));
+  bajar('\uFEFF'+filas.join('\r\n'), 'PET-Ibague_'+clave+'.csv', 'text/csv;charset=utf-8');
+}
+function bajarJSON(){
+  bajar(JSON.stringify({version:1, generado:new Date().toISOString(), perfil, registros}, null, 2),
+        'PET-Ibague_respaldo.json','application/json');
+}
+function subirJSON(){
+  const inp = el('input',{type:'file', accept:'.json'});
+  inp.addEventListener('change', async ()=>{
+    const f = inp.files[0]; if(!f) return;
+    try{
+      const d = JSON.parse(await f.text());
+      if(d.perfil) { perfil = Object.assign(perfil, d.perfil); await store.set(K('perfil'), perfil); }
+      if(d.registros) for(const k of CLAVES){
+        if(!d.registros[k]) continue;
+        registros[k] = [...(registros[k]||[]), ...d.registros[k]];
+        await guardarLista(k);
+      }
+      pintar(); alert('Respaldo cargado. Los registros se agregaron a los existentes.');
+    }catch(err){ alert('El archivo no se pudo leer. Verifique que sea un respaldo JSON generado por esta herramienta.'); }
+  });
+  inp.click();
+}
+function bajar(txt, nombre, tipo){
+  const a = el('a',{href:URL.createObjectURL(new Blob([txt],{type:tipo})), download:nombre});
+  document.body.append(a); a.click(); a.remove();
+}
+
+/* =======================================================================
+   7b. CATÁLOGO DEL SIGAMI (Listado Maestro)
+   ===================================================================== */
+function leerCSV(txt){
+  txt = txt.replace(/^\uFEFF/,'').replace(/\r\n?/g,'\n');
+  const primera = txt.split('\n')[0];
+  const sep = (primera.split(';').length > primera.split(',').length) ? ';' : ',';
+  const filas=[]; let campo='', fila=[], comillas=false;
+  for(let i=0;i<txt.length;i++){
+    const ch=txt[i];
+    if(comillas){
+      if(ch==='"'){ if(txt[i+1]==='"'){campo+='"'; i++;} else comillas=false; }
+      else campo+=ch;
+    } else if(ch==='"') comillas=true;
+    else if(ch===sep){ fila.push(campo); campo=''; }
+    else if(ch==='\n'){ fila.push(campo); filas.push(fila); fila=[]; campo=''; }
+    else campo+=ch;
+  }
+  if(campo||fila.length){ fila.push(campo); filas.push(fila); }
+  return filas.filter(f=>f.some(c=>c.trim()));
+}
+const COLS_CAT = ['dep','proceso','codigo','nombre','version','tipo','bd','llave'];
+const ROTULOS_CAT = {dep:'Dependencia', proceso:'Proceso misional', codigo:'Código', nombre:'Nombre del documento o registro', version:'Versión', tipo:'Tipo', bd:'¿Tiene base de datos?', llave:'Llave (campo identificador)'};
+
+// Un documento se caracteriza como registro administrativo (F3) del DANE
+// solo si tiene una base de datos asociada y una llave/campo identificador.
+function tieneBD(f){
+  const v = (f.bd||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+  return ['si','x','1','true','verdadero','tiene','aplica'].includes(v);
+}
+function tieneLlave(f){ return (f.llave||'').trim().length>0; }
+// ¿La plantilla trae información de base de datos/llave? (para saber si el filtro aplica)
+function catalogoTieneBD(){ return catalogo.some(f=>(f.bd||'').trim() || (f.llave||'').trim()); }
+function calificaF3(f){ return tieneBD(f) && tieneLlave(f); }
+
+function vistaCatalogo(p){
+  p.append(el('div',{cls:'cab'},
+    el('p',{cls:'eyebrow'},'Punto de partida'),
+    el('h2',{},'Catálogo SIGAMI'),
+    el('p',{},'Cargue aquí el Listado Maestro de Documentos y Registros. Con él, cada funcionario selecciona su dependencia y ve de inmediato los formatos que ya tiene aprobados: la caracterización se hace sobre esos, no sobre una hoja en blanco.')));
+
+  p.append(el('div',{cls:'puente'},
+    el('h4',{},'Cómo preparar el archivo'),
+    el('p',{},'Exporte el Listado Maestro a CSV. Basta con seis columnas, en este orden: Dependencia, Proceso misional, Código, Nombre del documento, Versión, Tipo. En «Tipo» escriba «Indicador» para los indicadores; los demás documentos quedan como formatos candidatos a registro administrativo. La base de datos y la llave se marcan luego dentro de la herramienta, en «Formatos de mi dependencia», sin necesidad de editar el Excel. Si prefiere, puede agregar dos columnas más (¿Tiene base de datos? y Llave) y vendrán precargadas.'),
+    el('div',{cls:'acciones', style:'position:static;background:none;padding:0'},
+      el('button',{cls:'btn sec', onclick:()=>{
+        const filas=[COLS_CAT.map(c=>ROTULOS_CAT[c]).join(';'),
+          'Secretaría de Salud;Gestión de la salud pública;FOR-SAL-014;Registro de vacunación canina y felina;3;Registro administrativo;Sí;Número de documento del propietario',
+          'Secretaría de Salud;Gestión de la salud pública;FOR-SAL-021;Ficha de notificación de eventos de interés en salud pública;2;Registro administrativo;Sí;Código del evento',
+          'Secretaría de Salud;Gestión de la salud pública;FOR-SAL-099;Acta de reunión de comité;1;Registro administrativo;No;'];
+        bajar('\uFEFF'+filas.join('\r\n'),'Plantilla_Listado_Maestro.csv','text/csv;charset=utf-8');
+      }},'Descargar plantilla CSV'),
+      el('button',{cls:'btn', onclick:importarCatalogo},'Cargar Listado Maestro'))));
+
+  if(!catalogo.length){
+    p.append(el('div',{cls:'vacio'}, el('strong',{},'El catálogo está vacío'),
+      'Mientras no se cargue, la dependencia se escribe a mano y la caracterización arranca en blanco. Solicite el Listado Maestro al líder de Calidad del SIGAMI.'));
+    return;
+  }
+
+  const resumen = el('table',{cls:'tabla-cons'});
+  resumen.append(el('thead',{}, el('tr',{}, el('th',{},'Dependencia'), el('th',{},'Formatos'), el('th',{},'Caracterizados'))));
+  const rb = el('tbody',{});
+  dependencias().forEach(d=>{
+    const fs = formatosDe(d);
+    const hechos = fs.filter(f=>registroDeFormato(f.codigo)).length;
+    rb.append(el('tr',{}, el('td',{},d), el('td',{cls:'n'},String(fs.length)), el('td',{cls:'n'}, hechos+' de '+fs.length)));
+  });
+  resumen.append(rb); p.append(resumen);
+
+  p.append(el('div',{cls:'acciones'},
+    el('button',{cls:'btn sec', onclick:importarCatalogo},'Reemplazar catálogo'),
+    el('button',{cls:'btn peligro', onclick:async()=>{ if(!confirm('¿Borrar el catálogo cargado?')) return; catalogo=[]; await store.set(K('catalogo'),[]); pintar(); }},'Borrar catálogo'),
+    el('span',{cls:'eco'}, catalogo.length+' documentos en '+dependencias().length+' dependencias')));
+}
+
+function importarCatalogo(){
+  const inp = el('input',{type:'file', accept:'.csv,.txt'});
+  inp.addEventListener('change', async ()=>{
+    const f = inp.files[0]; if(!f) return;
+    // Detección de codificación: se intenta UTF-8; si aparecen caracteres de
+    // reemplazo (archivo guardado en latin-1/ANSI desde Excel), se relee como windows-1252.
+    const buf = await f.arrayBuffer();
+    let texto = new TextDecoder('utf-8',{fatal:false}).decode(buf);
+    if(texto.includes('\uFFFD')) texto = new TextDecoder('windows-1252').decode(buf);
+    const filas = leerCSV(texto);
+    if(filas.length<2){ alert('El archivo no tiene filas de datos.'); return; }
+
+    let ultDep='', ultProc='', sinDep=0;
+    const cuerpo = filas.slice(1).map(f2=>{
+      const o={}; COLS_CAT.forEach((c,i)=>o[c]=(f2[i]||'').trim());
+      // Relleno hacia abajo: si Excel dejó la dependencia/proceso en blanco
+      // por celdas combinadas, se hereda TAL CUAL de la fila anterior.
+      // No se cambia ninguna grafía: los nombres quedan idénticos a la plantilla.
+      const traeDep = f2[0] && f2[0].trim();
+      if(o.dep)     ultDep  = o.dep;     else o.dep     = ultDep;
+      if(o.proceso) ultProc = o.proceso; else o.proceso = ultProc;
+      // Al cambiar de dependencia, el proceso heredado deja de aplicar.
+      if(traeDep) ultProc = o.proceso;
+      if(!o.dep) sinDep++;
+      return o;
+    }).filter(o=>o.codigo||o.nombre);
+
+    if(!cuerpo.length){ alert('No se reconoció ninguna fila. Verifique el orden de las columnas.'); return; }
+    catalogo = cuerpo;
+    await store.set(K('catalogo'), catalogo);
+    pintar();
+    let msg = 'Catálogo cargado: '+catalogo.length+' documentos en '+dependencias().length+' dependencias.';
+    if(sinDep) msg += '\n\nAtención: '+sinDep+' fila(s) quedaron SIN dependencia. Revise que la primera columna del CSV tenga el nombre de la secretaría en cada fila (Excel suele dejarla vacía cuando hay celdas combinadas).';
+    alert(msg);
+  });
+  inp.click();
+}
+
+/* ---- Formatos aprobados de mi dependencia ---- */
+function vistaFormatos(p){
+  p.append(el('div',{cls:'cab'},
+    el('p',{cls:'eyebrow'}, perfil.dep || 'Sin dependencia seleccionada'),
+    el('h2',{},'Formatos de mi dependencia'),
+    el('p',{},'Lo que ya está aprobado en el SIGAMI es el inventario de partida. Cada documento de esta lista se caracteriza una vez y queda marcado.')));
+
+  if(!perfil.dep){
+    p.append(el('div',{cls:'vacio'}, el('strong',{},'Falta elegir la dependencia'), 'Vaya a la ficha de la mesa y seleccione su dependencia.'));
+    p.append(el('div',{cls:'acciones'}, el('button',{cls:'btn', onclick:()=>ir('perfil')},'Ir a la ficha de la mesa')));
+    return;
+  }
+  const fsTodos = formatosDe(perfil.dep);
+  if(!fsTodos.length){
+    p.append(el('div',{cls:'vacio'}, el('strong',{},'Esta dependencia no tiene formatos en el catálogo'),
+      'Puede caracterizar igual, empezando desde los formularios del menú, o pedir que se actualice el Listado Maestro.'));
+    return;
+  }
+
+  const esIndicador = f => (tipoAFormato(f.tipo)==='A2');
+  const marcables = fsTodos.filter(f=>!esIndicador(f));   // los "Formato": candidatos a registro administrativo
+  const indicadores = fsTodos.filter(esIndicador);
+  const califican = marcables.filter(calificaF3);
+
+  // Panel de filtro / instrucción
+  const cont = el('div',{cls:'puente'},
+    el('h4',{},'Cómo caracterizar como registro administrativo (F3)'),
+    el('p',{}, 'De los '+marcables.length+' formatos de esta dependencia, marque cuáles tienen una base de datos y escriba su llave (el campo que identifica cada registro). Solo esos se caracterizan como registro administrativo del DANE. Los '+indicadores.length+' indicadores van al formato A2.'),
+    el('p',{style:'font-weight:600'}, 'Ya marcados con base de datos y llave: '+califican.length+' de '+marcables.length));
+  const lbl = el('label',{cls:'op', style:'display:inline-flex;gap:.5rem;align-items:center;cursor:pointer'});
+  const chk = el('input',{type:'checkbox'}); chk.checked = soloBD;
+  chk.addEventListener('change', ()=>{ soloBD = chk.checked; pintar(); });
+  lbl.append(chk, el('span',{},'Mostrar solo los que ya tienen base de datos y llave'));
+  cont.append(lbl);
+  p.append(cont);
+
+  const fs = soloBD ? fsTodos.filter(f=> esIndicador(f) || calificaF3(f)) : fsTodos;
+
+  const hechos = fs.filter(f=>registroDeFormato(f.codigo)).length;
+  const med = el('div',{cls:'puente'},
+    el('h4',{},'Avance de la dependencia'),
+    el('p',{}, hechos+' de '+fs.length+' documentos caracterizados.'),
+    el('div',{cls:'barra', style:'background:#E7D8B4'}, el('i',{style:'width:'+(fs.length?hechos/fs.length*100:0)+'%'})));
+  p.append(med);
+
+  const guardarCat = async ()=>{ await store.set(K('catalogo'), catalogo); };
+
+  const fichas = el('div',{cls:'fichas'});
+  fs.forEach(f=>{
+    const ficha = el('div',{cls:'ficha'},
+      el('span',{cls:'meta'}, f.codigo || '—'),
+      el('span',{cls:'nom'}, f.nombre || 'Sin nombre', f.version? el('span',{cls:'meta'},'  v.'+f.version):null));
+
+    const hecho = registroDeFormato(f.codigo);
+
+    if(esIndicador(f)){
+      // Indicador → A2
+      if(hecho){
+        ficha.append(el('span',{cls:'estado ok'}, ESQUEMAS[hecho.clave].cod));
+        ficha.append(el('button',{cls:'mini', onclick:()=>{ vista=hecho.clave; actual=hecho.r; pintar(); }},'Abrir'));
+      } else {
+        ficha.append(el('span',{cls:'estado'},'Indicador'));
+        ficha.append(el('button',{cls:'mini', onclick:()=>{ vista='A2'; actual=nuevoRegistro('A2',f); pintar(); }},'Caracterizar como A2'));
+      }
+      fichas.append(ficha); return;
+    }
+
+    // Formato → candidato a registro administrativo (F3): controles de base de datos y llave
+    if(hecho){
+      ficha.append(el('span',{cls:'meta'}, 'Llave: '+((f.llave||'').trim()||'—')));
+      ficha.append(el('span',{cls:'estado ok'}, ESQUEMAS[hecho.clave].cod));
+      ficha.append(el('button',{cls:'mini', onclick:()=>{ vista=hecho.clave; actual=hecho.r; pintar(); }},'Abrir'));
+      fichas.append(ficha); return;
+    }
+
+    const controles = el('div',{cls:'bd-controles', style:'display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;width:100%;margin-top:.4rem'});
+    // Checkbox base de datos
+    const lblBD = el('label',{style:'display:inline-flex;gap:.35rem;align-items:center;cursor:pointer;font-size:13px'});
+    const chkBD = el('input',{type:'checkbox'}); chkBD.checked = tieneBD(f);
+    lblBD.append(chkBD, el('span',{},'Tiene base de datos'));
+    // Texto llave
+    const inLlave = el('input',{type:'text', placeholder:'Llave (campo identificador)', style:'font-size:13px;padding:.3rem .5rem;min-width:220px'});
+    inLlave.value = f.llave || '';
+    // Botón caracterizar (solo si califica)
+    const zonaBtn = el('span',{style:'display:inline-flex;gap:.5rem;align-items:center;flex-wrap:wrap'});
+    const refrescarBtn = ()=>{
+      zonaBtn.innerHTML='';
+      if(calificaF3(f)){
+        zonaBtn.append(el('button',{cls:'mini', onclick:()=>{ vista='F3'; actual=nuevoRegistro('F3',f); pintar(); }},'Caracterizar como F3'));
+      } else {
+        zonaBtn.append(el('span',{cls:'meta'}, 'Falta '+(!tieneBD(f)?'marcar base de datos':'escribir la llave')));
+        zonaBtn.append(el('button',{cls:'mini', onclick:async()=>{
+          if(!confirm('¿Confirma que «'+(f.nombre||f.codigo)+'» NO tiene base de datos ni llave?\n\nSe guardará como evidencia y se enviará a la base de datos.')) return;
+          const aviso = await registrarSinBD(f); alert(aviso);
+        }},'No tiene base de datos ni llave'));
+      }
+    };
+    chkBD.addEventListener('change', async ()=>{ f.bd = chkBD.checked ? 'Sí' : 'No'; await guardarCat(); refrescarBtn(); });
+    inLlave.addEventListener('input', ()=>{ f.llave = inLlave.value; });
+    inLlave.addEventListener('change', async ()=>{ f.llave = inLlave.value.trim(); await guardarCat(); refrescarBtn(); });
+    refrescarBtn();
+    controles.append(lblBD, inLlave, zonaBtn);
+
+    ficha.append(el('span',{cls:'estado'}, calificaF3(f)?'Listo para F3':'Sin clasificar'));
+    ficha.append(controles);
+    fichas.append(ficha);
+  });
+  p.append(fichas);
+}
+
+/* =======================================================================
+   7c. SINCRONIZACIÓN CON LA BASE DE DATOS
+   ===================================================================== */
+function columnasDe(clave){
+  const e = ESQUEMAS[clave];
+  const cols = [
+    {id:'__id', l:'id_registro'}, {id:'__dep', l:'dependencia'}, {id:'__fecha', l:'actualizado'},
+    {id:'sg_proceso', l:'SIGAMI · proceso misional'}, {id:'sg_codigo', l:'SIGAMI · código Listado Maestro'}, {id:'sg_nombre', l:'SIGAMI · nombre del formato'}, {id:'sg_soporte', l:'SIGAMI · soporte'}
+  ];
+  e.modulos.forEach(m=>m.campos.forEach(c=>cols.push({id:c.id, l:(c.c? c.c+' ':'')+c.l})));
+  return cols;
+}
+function filaDe(clave, r){
+  return columnasDe(clave).map(c=>{
+    if(c.id==='__id') return r.id;
+    if(c.id==='__dep') return perfil.dep || aTexto(r.datos.A_dep) || '';
+    if(c.id==='__fecha') return r.actualizado || '';
+    return aTexto(r.datos[c.id]);
+  });
+}
+
+async function enviar(clave, r){
+  if(conexion.modo==='ninguno' || !conexion.url) return null;
+  if(conexion.modo==='sheets'){
+    const cuerpo = {token:conexion.token, formato:clave, formatoNombre:ESQUEMAS[clave].cod,
+                    id:r.id, columnas:columnasDe(clave).map(c=>c.l), fila:filaDe(clave,r)};
+    const res = await fetch(conexion.url, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(cuerpo)});
+    const txt = await res.text();
+    if(!res.ok) throw new Error(txt.slice(0,120));
+    return txt;
+  }
+  if(conexion.modo==='supabase'){
+    const plano = {}; columnasDe(clave).forEach((c,i)=>plano[c.l]=filaDe(clave,r)[i]);
+    const cuerpo = [{id:r.id, formato:clave, dependencia:perfil.dep||'', proceso:aTexto(r.datos.sg_proceso),
+                     titulo:tituloRegistro(clave,r.datos), actualizado:new Date().toISOString(), datos:plano}];
+    const res = await fetch(conexion.url.replace(/\/$/,'')+'/rest/v1/'+(conexion.tabla||'respuestas'),
+      {method:'POST', headers:{'Content-Type':'application/json', apikey:conexion.token,
+       Authorization:'Bearer '+conexion.token, Prefer:'resolution=merge-duplicates,return=minimal'},
+       body:JSON.stringify(cuerpo)});
+    if(!res.ok) throw new Error((await res.text()).slice(0,160));
+    return 'ok';
+  }
+}
+
+async function sincronizar(soloPendientes){
+  if(conexion.modo==='ninguno' || !conexion.url){ alert('Primero configure la conexión con la base de datos.'); return; }
+  let ok=0, fallos=[];
+  for(const k of CLAVES) for(const r of (registros[k]||[])){
+    if(soloPendientes && r.sync) continue;
+    try{ await enviar(k,r); r.sync = new Date().toISOString().slice(0,16).replace('T',' '); delete r.syncError; ok++; }
+    catch(err){ r.syncError = String(err.message||err); fallos.push(tituloRegistro(k,r.datos)); }
+    await guardarLista(k, true);
+  }
+  pintar();
+  alert(ok+' registros enviados a la base de datos.' + (fallos.length? '\n\nNo se pudieron enviar: '+fallos.join(', ') : ''));
+}
+
+
+/* =======================================================================
+   8. ARRANQUE
+   ===================================================================== */
+(async function(){
+  perfil = (await store.get(K('perfil'))) || {};
+  catalogo = (await store.get(K('catalogo'))) || [];
+  conexion = Object.assign(conexion, (await store.get(K('conexion'))) || {});
+
+  // Configuración por enlace: ?bd=...&clave=...&modo=sheets
+  const q = new URLSearchParams(location.search);
+  if(q.get('bd')){
+    conexion.url   = q.get('bd');
+    conexion.token = q.get('clave') || conexion.token;
+    conexion.modo  = q.get('modo')  || 'sheets';
+    conexion.tabla = q.get('tabla') || conexion.tabla;
+    await store.set(K('conexion'), conexion);
+    history.replaceState({}, '', location.pathname);
+  }
+  for(const k of CLAVES) registros[k] = (await store.get(K('reg:'+k))) || [];
+  pintar();
+})();
+
+window.addEventListener('beforeunload', e=>{ if(sucio){ e.preventDefault(); e.returnValue=''; } });
+</script>
