@@ -1059,67 +1059,51 @@ function vistaEditor(p, clave){
   });
 
   p.append(el('div',{cls:'acciones'},
-    el('button',{cls:'btn', onclick:()=>accionGuardar(clave, true)},'Guardar y enviar'),
-    el('button',{cls:'btn sec', onclick:()=>accionGuardar(clave, false)},'Guardar'),
+    el('button',{cls:'btn', onclick:async()=>{
+      // La base de datos y la llave son obligatorias para todo registro administrativo (F3).
+      if(clave==='F3'){
+        const bd = aTexto(r.datos.B19).trim();
+        const llave = (r.datos.B10||'').trim();
+        const faltan = [];
+        if(!bd) faltan.push('· ¿La información se almacena en una base de datos? (B19)');
+        if(!llave) faltan.push('· Variable llave o de identificación única (B10)');
+        if(faltan.length){
+          alert('No se puede guardar este registro administrativo sin la base de datos y la llave.\n\nFalta diligenciar:\n'+faltan.join('\n'));
+          return;
+        }
+      }
+      const l = registros[clave] || (registros[clave]=[]);
+      const eraNuevo = !l.includes(r);
+      if(eraNuevo) l.push(r);
+      r.actualizado = new Date().toISOString().slice(0,16).replace('T',' ');
+      await guardarLista(clave);   // guarda en el dispositivo y, si hay conexión, envía a la base
+      sucio=false;
+      pintarNav();
+
+      // Si estaba conectado pero el envío FALLÓ (p. ej. clave incorrecta), no se limpia:
+      // así el usuario no pierde los datos y puede reintentar.
+      if(conexion.modo!=='ninguno' && conexion.url && r.syncError){
+        const eco = document.getElementById('ecoGuardar'); if(eco) eco.textContent = 'Guardado; envío pendiente';
+        alert('Se guardó en este dispositivo, pero NO se pudo enviar a la base de datos:\n\n'+r.syncError+'\n\nEl formulario NO se limpió para que no pierda los datos. Revise la conexión en «Consolidado» y use «Enviar todo a la base de datos».');
+        return;
+      }
+
+      // Éxito: se limpian los campos para el siguiente registro.
+      const enviado = (conexion.modo!=='ninguno' && conexion.url && r.sync);
+      if(eraNuevo){
+        actual = nuevoRegistro(clave);   // formulario en blanco, listo para el siguiente
+        pintar();
+        alert(enviado
+          ? 'Guardado y enviado a la base de datos. El formulario quedó en blanco para el siguiente registro.'
+          : 'Guardado en este dispositivo. El formulario quedó en blanco para el siguiente registro.');
+      } else {
+        actual = null;                   // al editar uno existente, vuelve a la lista
+        pintar();
+        alert(enviado ? 'Cambios guardados y enviados a la base de datos.' : 'Cambios guardados en este dispositivo.');
+      }
+    }},'Guardar formato'),
     el('button',{cls:'btn sec', onclick:()=>{ if(sucio && !confirm('Hay cambios sin guardar. ¿Salir de todos modos?')) return; actual=null; sucio=false; pintar(); }},'Volver a la lista'),
     el('span',{cls:'eco', id:'ecoGuardar'}, sucio?'Cambios sin guardar':'')));
-}
-
-// Guarda el registro actual.
-//  enviar = true  → guarda, envía a la base y DEJA EL FORMULARIO EN BLANCO para el
-//                   siguiente (flujo uno-a-muchos: varios indicadores/demandas, etc.).
-//  enviar = false → solo guarda en el dispositivo y se queda en el formulario.
-async function accionGuardar(clave, enviar){
-  const r = actual; if(!r) return;
-  // La base de datos y la llave son obligatorias para todo registro administrativo (F3).
-  if(clave==='F3'){
-    const bd = aTexto(r.datos.B19).trim();
-    const llave = (r.datos.B10||'').trim();
-    const faltan = [];
-    if(!bd) faltan.push('· ¿La información se almacena en una base de datos? (B19)');
-    if(!llave) faltan.push('· Variable llave o de identificación única (B10)');
-    if(faltan.length){
-      alert('No se puede guardar este registro administrativo sin la base de datos y la llave.\n\nFalta diligenciar:\n'+faltan.join('\n'));
-      return;
-    }
-  }
-  const l = registros[clave] || (registros[clave]=[]);
-  const eraNuevo = !l.includes(r);
-  if(eraNuevo) l.push(r);
-  r.actualizado = new Date().toISOString().slice(0,16).replace('T',' ');
-
-  // Solo guardar (sin enviar, sin limpiar): se queda en el formulario.
-  if(!enviar){
-    await guardarLista(clave, true);
-    sucio=false; pintarNav();
-    const eco = document.getElementById('ecoGuardar'); if(eco) eco.textContent = 'Guardado a las ' + r.actualizado.slice(11);
-    return;
-  }
-
-  // Guardar y enviar.
-  await guardarLista(clave);   // guarda + envía a la base (si hay conexión)
-  sucio=false; pintarNav();
-
-  // Si está conectado pero el envío FALLÓ (p. ej. clave incorrecta), no se limpia.
-  if(conexion.modo!=='ninguno' && conexion.url && r.syncError){
-    const eco = document.getElementById('ecoGuardar'); if(eco) eco.textContent = 'Guardado; envío pendiente';
-    alert('Se guardó en este dispositivo, pero NO se pudo enviar a la base de datos:\n\n'+r.syncError+'\n\nEl formulario NO se limpió para que no pierda los datos. Revise la clave en «Consolidado».');
-    return;
-  }
-
-  // Éxito: limpiar los campos para el siguiente registro.
-  const enviado = (conexion.modo!=='ninguno' && conexion.url && r.sync);
-  if(eraNuevo){
-    actual = nuevoRegistro(clave);   // formulario en blanco, listo para el siguiente
-    pintar();
-    alert(enviado
-      ? 'Enviado a la base de datos. El formulario quedó en blanco para el siguiente registro.'
-      : 'Guardado. (No hay conexión configurada: use «Enviar todo a la base de datos» en Consolidado para subirlo.) El formulario quedó en blanco para el siguiente.');
-  } else {
-    actual = null;                   // al editar uno existente, vuelve a la lista
-    pintar();
-    alert(enviado ? 'Cambios enviados a la base de datos.' : 'Cambios guardados en este dispositivo.');
-  }
 }
 
 async function guardarLista(clave, sinEnviar){
