@@ -1073,12 +1073,34 @@ function vistaEditor(p, clave){
         }
       }
       const l = registros[clave] || (registros[clave]=[]);
-      if(!l.includes(r)) l.push(r);
+      const eraNuevo = !l.includes(r);
+      if(eraNuevo) l.push(r);
       r.actualizado = new Date().toISOString().slice(0,16).replace('T',' ');
-      await guardarLista(clave);
+      await guardarLista(clave);   // guarda en el dispositivo y, si hay conexión, envía a la base
       sucio=false;
-      { const eco = document.getElementById('ecoGuardar'); if(eco) eco.textContent = 'Guardado a las ' + r.actualizado.slice(11); }
       pintarNav();
+
+      // Si estaba conectado pero el envío FALLÓ (p. ej. clave incorrecta), no se limpia:
+      // así el usuario no pierde los datos y puede reintentar.
+      if(conexion.modo!=='ninguno' && conexion.url && r.syncError){
+        const eco = document.getElementById('ecoGuardar'); if(eco) eco.textContent = 'Guardado; envío pendiente';
+        alert('Se guardó en este dispositivo, pero NO se pudo enviar a la base de datos:\n\n'+r.syncError+'\n\nEl formulario NO se limpió para que no pierda los datos. Revise la conexión en «Consolidado» y use «Enviar todo a la base de datos».');
+        return;
+      }
+
+      // Éxito: se limpian los campos para el siguiente registro.
+      const enviado = (conexion.modo!=='ninguno' && conexion.url && r.sync);
+      if(eraNuevo){
+        actual = nuevoRegistro(clave);   // formulario en blanco, listo para el siguiente
+        pintar();
+        alert(enviado
+          ? 'Guardado y enviado a la base de datos. El formulario quedó en blanco para el siguiente registro.'
+          : 'Guardado en este dispositivo. El formulario quedó en blanco para el siguiente registro.');
+      } else {
+        actual = null;                   // al editar uno existente, vuelve a la lista
+        pintar();
+        alert(enviado ? 'Cambios guardados y enviados a la base de datos.' : 'Cambios guardados en este dispositivo.');
+      }
     }},'Guardar formato'),
     el('button',{cls:'btn sec', onclick:()=>{ if(sucio && !confirm('Hay cambios sin guardar. ¿Salir de todos modos?')) return; actual=null; sucio=false; pintar(); }},'Volver a la lista'),
     el('span',{cls:'eco', id:'ecoGuardar'}, sucio?'Cambios sin guardar':'')));
