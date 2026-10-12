@@ -569,19 +569,14 @@ function registroDeFormato(codigo){
     if((r.datos.sg_codigo||'').trim().toLowerCase().startsWith(c)) return {clave:k, r};
   return null;
 }
-// Reconoce la columna "Tipo" con tolerancia a tildes y mayúsculas.
-// El orden importa: un indicador no debe caer en F1 por la palabra «estadística»,
-// y una demanda (F2) no debe caer en F3.
+// Reconoce la columna "Tipo" con tolerancia a tildes, mayúsculas, plurales
+// y a las abreviaturas de los formatos del DANE (F1/F3/A2).
 function tipoAFormato(txt){
   const t = (txt||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
   if(!t) return null;
-  const codigo = (c) => new RegExp('(?:^|[^a-z0-9])'+c+'(?:[^a-z0-9]|$)').test(t);
-  if(codigo('f2') || t.includes('demanda') || t.includes('no satisfecha')) return 'F2';
-  if(codigo('f3')) return 'F3';
-  if(codigo('f1')) return 'F1';
-  if(codigo('a2') || t.includes('anexo 2') || t.includes('indicador')) return 'A2';
-  if(t.includes('registro') || t.includes('administrativo')) return 'F3';
-  if(t.includes('operacion') || t.includes('encuesta') || t.includes('censo')) return 'F1';
+  if(t.includes('registro') || t.includes('administrativo') || t.includes('f3')) return 'F3';
+  if(t.includes('operacion') || t.includes('estadistica') || t.includes('f1')) return 'F1';
+  if(t.includes('indicador') || t.includes('a2') || t.includes('anexo 2')) return 'A2';
   return null;
 }
 
@@ -643,12 +638,18 @@ function campo(c, datos){
   }
   else if(c.t==='multi' || c.t==='radio'){
     const multi = c.t==='multi';
+    // Normaliza el valor por si viene de una versión anterior o con forma
+    // incorrecta (texto, arreglo o nulo): así la casilla nunca rompe el formulario.
     let v = datos[c.id];
-    // La ficha de la mesa precarga textos (correo, cargo). Si caen en una
-    // casilla de varias opciones, no se puede leer .sel y el formulario se cae.
-    if(!v || typeof v!=='object' || v.sel===undefined) v = {sel: multi?[]:'', det:{}};
-    if(multi && !Array.isArray(v.sel)) v.sel = v.sel ? [String(v.sel)] : [];
+    if(v===null || v===undefined || typeof v!=='object' || Array.isArray(v) || !('sel' in v)){
+      const prev = v;
+      v = {sel: multi?[]:'', det:{}};
+      if(multi){ if(Array.isArray(prev)) v.sel = prev.filter(x=>typeof x==='string'); else if(typeof prev==='string' && prev) v.sel = [prev]; }
+      else if(typeof prev==='string'){ v.sel = prev; }
+    }
     if(!v.det || typeof v.det!=='object') v.det = {};
+    if(multi && !Array.isArray(v.sel)) v.sel = (typeof v.sel==='string' && v.sel) ? [v.sel] : [];
+    if(!multi && typeof v.sel!=='string') v.sel = '';
     datos[c.id]=v;
     const cont = el('div',{cls:'ops'+(c.o.length>7?' dos':'')});
     c.o.forEach((o,i)=>{
@@ -892,37 +893,35 @@ async function registrarSinBD(f){
 
 function nuevoRegistro(clave, fmt){
   const datos = {};
-  const tipoDe = {};
-  ESQUEMAS[clave].modulos.forEach(m=>m.campos.forEach(c=>{ tipoDe[c.id]=c.t; }));
-  // Solo precarga si el campo de ESTE formato es de texto o lista desplegable.
-  // En F2, A7 es «temas compartidos» (casillas) y el correo de la ficha lo rompía.
-  // En F1, A5 es «temas compartidos» y el cargo del técnico hacía lo mismo.
-  const poner = (id, valor)=>{
-    if(valor==null || valor==='') return;
-    const t = tipoDe[id];
-    if(t==='text' || t==='ta' || t==='select' || t==='month' || t==='date') datos[id]=valor;
-  };
-  poner('A_dep', perfil.dep);
-  poner('A_jefe', perfil.jefe);
-  poner('A_cargoJefe', perfil.cargoJefe);
-  poner('A_correoJefe', perfil.correoJefe);
-  poner('A_telJefe', perfil.telJefe);
-  poner('A_tec', perfil.tec);
-  poner('A_tecCargo', perfil.tecCargo);
-  poner('A_tecCorreo', perfil.tecCorreo);
-  poner('A_tecTel', perfil.tecTel);
-  poner('A_tema', perfil.tema);
-  poner('A8', perfil.dep);
-  if(clave==='A2' || clave==='SAT') poner('A2', perfil.jefe);
-  else if(tipoDe.A2==='select') poner('A2', perfil.tema);
-  if(tipoDe.A3==='select') poner('A3', perfil.tema);
-  if(tipoDe.A4==='text') poner('A4', perfil.tec);
-  if(tipoDe.A5==='text') poner('A5', perfil.tecCargo);
-  if(tipoDe.A6==='text') poner('A6', perfil.tecTel);
-  if(tipoDe.A7==='text') poner('A7', perfil.tecCorreo);
-  if(tipoDe.D_quien==='text') poner('D_quien', perfil.tec);
-  if(tipoDe.D_cargo==='text') poner('D_cargo', perfil.tecCargo);
-  if(perfil.proceso) datos.sg_proceso = perfil.proceso;
+  // Precarga desde la ficha de la mesa.
+  // Bloque de identificación A_* (lo usan F3, F1 y F2): siempre seguro.
+  const mapa = {A_dep:'dep', A_jefe:'jefe', A_cargoJefe:'cargoJefe', A_correoJefe:'correoJefe', A_telJefe:'telJefe',
+                A_tec:'tec', A_tecCargo:'tecCargo', A_tecCorreo:'tecCorreo', A_tecTel:'tecTel'};
+  for(const k in mapa) if(perfil[mapa[k]]) datos[k]=perfil[mapa[k]];
+
+  // Área temática predominante como valor inicial del SELECT correspondiente.
+  // Importante: en F1 el tema va en A2 y en F2 en A3. No tocar A5/A7 (son listas).
+  if(perfil.tema){
+    datos.A_tema = perfil.tema;              // F3
+    if(clave==='F1') datos.A2 = perfil.tema; // F1: A2 = área temática
+    if(clave==='F2') datos.A3 = perfil.tema; // F2: A3 = área temática
+  }
+
+  // Identificación tipo A2 / Satisfacción: A2..A8 son campos de TEXTO.
+  // Solo aquí es correcto copiar cargo/teléfono/correo a A5/A6/A7.
+  if(clave==='A2' || clave==='SAT'){
+    if(perfil.dep)       datos.A8 = perfil.dep;
+    if(perfil.jefe)      datos.A2 = perfil.jefe;      // director
+    if(perfil.tec)       datos.A4 = perfil.tec;       // quien suministra la información
+    if(perfil.tecCargo)  datos.A5 = perfil.tecCargo;
+    if(perfil.tecTel)    datos.A6 = perfil.tecTel;
+    if(perfil.tecCorreo) datos.A7 = perfil.tecCorreo;
+  }
+
+  // Control de la encuesta (F3 y otros con estos campos de texto).
+  if(perfil.tec)      datos.D_quien = perfil.tec;
+  if(perfil.tecCargo) datos.D_cargo = perfil.tecCargo;
+  if(perfil.proceso)  datos.sg_proceso = perfil.proceso;
   if(fmt){
     datos.sg_codigo = fmt.codigo + (fmt.version ? ' v.'+fmt.version : '');
     datos.sg_nombre = fmt.nombre || '';
@@ -940,35 +939,9 @@ function nuevoRegistro(clave, fmt){
   return {id:'r'+Date.now()+Math.random().toString(36).slice(2,6), creado:hoy, datos};
 }
 
-function codigoCatalogo(f){ return f.codigo + (f.version ? ' v.'+f.version : ''); }
-
-// null: este formato no se ata a un documento del Listado Maestro (demanda, satisfacción, evidencia).
-function documentosDelPuente(clave){
-  if(clave!=='F1' && clave!=='F3' && clave!=='A2') return null;
-  if(!perfil.dep) return [];
-  const fs = formatosDe(perfil.dep);
-  if(clave==='F3') return fs.filter(calificaF3);
-  if(clave==='F1') return fs.filter(f => tipoAFormato(f.tipo)==='F1');
-  return fs.filter(f => tipoAFormato(f.tipo)==='A2');
-}
-
-function aplicarDocumento(datos, clave, f){
-  if(!f){ datos.sg_nombre=''; return; }
-  datos.sg_nombre = f.nombre || '';
-  if(f.proceso) datos.sg_proceso = f.proceso;
-  if(clave==='F3'){
-    datos.B1_nombre = f.nombre; datos.B1_version = f.version||'';
-    if(f.llave && f.llave.trim()) datos.B10 = f.llave.trim();
-    if(tieneBD(f)) datos.B19 = {sel:'Sí', det:{}};
-  } else if(clave==='F1' || clave==='A2'){
-    datos.B1 = f.nombre;
-  }
-}
-
-/* Construye la sección "Puente con el SIGAMI".
-   F3 lista registros con base de datos y llave.
-   F1 lista encuestas y censos. A2 lista indicadores.
-   F2 no pide un documento del Listado Maestro: una demanda es un vacío, no un formato aprobado. */
+/* Construye la sección "Puente con el SIGAMI" con un selector de formatos
+   que solo lista los que tienen base de datos y llave de la dependencia,
+   y al elegir uno arrastra el código y el nombre. */
 function camposPuente(datos, clave){
   const out = [];
 
@@ -979,53 +952,44 @@ function camposPuente(datos, clave){
     : {id:'sg_proceso', t:'select', l:'Proceso misional del SIGAMI al que pertenece', o:PROCESOS, req:true, h:'Determina la mesa de trabajo y el responsable de la codificación posterior.'};
   out.push(campo(cProc, datos));
 
-  const lista = documentosDelPuente(clave);
-  if(lista===null){
-    out.push(el('p',{cls:'ayuda', style:'margin:0 0 12px'}, clave==='F2'
-      ? 'Una demanda no es un documento del Listado Maestro. Describa el vacío de información en el módulo B. El proceso misional queda solo como referencia interna.'
-      : 'Este formulario no se ata a un código del Listado Maestro.'));
-  } else {
-  const rotulo = clave==='F1'
-    ? 'Operación estadística del Listado Maestro'
-    : clave==='A2'
-      ? 'Indicador del Listado Maestro'
-      : 'Formato del Listado Maestro (con base de datos y llave)';
-  const ayuda = !perfil.dep
-    ? 'Primero elija la dependencia en la ficha de la mesa.'
-    : clave==='F1'
-      ? 'Encuestas y censos de «'+perfil.dep+'». Al elegir una se copia el nombre a la operación estadística.'
-      : clave==='A2'
-        ? 'Indicadores de «'+perfil.dep+'». Al elegir uno se copia el nombre al indicador.'
-        : 'Formatos de «'+perfil.dep+'» con base de datos y llave. Al elegir uno se copian el nombre y la llave.';
-  const vacio = clave==='F1'
-    ? 'No hay encuestas ni censos en esta dependencia'
-    : clave==='A2'
-      ? 'No hay indicadores en esta dependencia'
-      : 'No hay formatos con base de datos y llave en esta dependencia';
+  // 2. Selector de formato del Listado Maestro — solo aplica a F3 y F1.
+  // Un indicador (A2) o una demanda (F2) NO es un formato del Listado Maestro,
+  // por eso allí no se exige y la dependencia puede registrar tantos como necesite.
+  if(clave==='F3' || clave==='F1'){
+  const califican = perfil.dep ? formatosDe(perfil.dep).filter(calificaF3) : [];
+  const codDe = f => f.codigo + (f.version ? ' v.'+f.version : '');
 
   const caja = el('div',{cls:'campo'});
-  caja.append(el('div',{cls:'rotulo'+(clave==='F3'?' req':'')}, rotulo));
-  caja.append(el('p',{cls:'ayuda'}, ayuda));
+  caja.append(el('div',{cls:'rotulo req'}, 'Formato del Listado Maestro (con base de datos y llave)'));
+  caja.append(el('p',{cls:'ayuda'}, perfil.dep
+    ? 'Seleccione el formato aprobado de «'+perfil.dep+'». Al elegirlo se traen el código y el nombre. Solo aparecen los formatos con base de datos y llave.'
+    : 'Primero elija la dependencia en la ficha de la mesa.'));
 
   const sel = el('select',{});
-  sel.append(el('option',{value:''}, lista.length? '— Seleccione un formato —' : vacio));
-  lista.forEach(f=> sel.append(el('option',{value:codigoCatalogo(f)}, codigoCatalogo(f)+' · '+(f.nombre||''))));
+  sel.append(el('option',{value:''}, califican.length? '— Seleccione un formato —' : 'No hay formatos con base de datos y llave en esta dependencia'));
+  califican.forEach(f=> sel.append(el('option',{value:codDe(f)}, codDe(f)+' · '+(f.nombre||''))));
   sel.append(el('option',{value:'__manual'}, '— Escribir el código a mano —'));
 
   const codActual = (datos.sg_codigo||'').trim();
-  const existe = lista.some(f=>codigoCatalogo(f)===codActual);
+  const existe = califican.some(f=>codDe(f)===codActual);
   sel.value = datos.__manualCod ? '__manual' : (codActual ? (existe? codActual : '__manual') : '');
 
   sel.addEventListener('change', ()=>{
     if(sel.value==='__manual'){ datos.__manualCod=true; datos.sg_codigo=''; datos.sg_nombre=''; marcarSucio(); pintar(); return; }
     datos.__manualCod=false;
     datos.sg_codigo = sel.value;
-    aplicarDocumento(datos, clave, lista.find(x=>codigoCatalogo(x)===sel.value));
+    const f = califican.find(x=>codDe(x)===sel.value);
+    if(f){
+      datos.sg_nombre = f.nombre || '';
+      if(f.proceso) datos.sg_proceso = f.proceso;
+      // Arrastra el nombre al campo propio del formato, según el tipo.
+      if(clave==='F3'){ datos.B1_nombre = f.nombre; datos.B1_version = f.version||''; }
+      else if(clave==='F1' || clave==='A2'){ datos.B1 = f.nombre; }
+    } else { datos.sg_nombre=''; }
     marcarSucio(); pintar();
   });
   caja.append(sel);
   out.push(caja);
-  }
 
   // 2b. Si eligió "escribir a mano", campo de texto para el código
   if(datos.__manualCod){
@@ -1041,6 +1005,14 @@ function camposPuente(datos, clave){
     cn.append(inn);
     out.push(cn);
   }
+  } else {
+    // A2 (indicadores) y F2 (demandas): una dependencia registra tantos como necesite.
+    const nota = el('div',{cls:'campo'});
+    nota.append(el('p',{cls:'ayuda'}, clave==='A2'
+      ? 'Diligencie un formulario por cada indicador. Puede registrar tantos indicadores como tenga la dependencia: guarde y luego use «Diligenciar un nuevo Anexo 2» para el siguiente.'
+      : 'Diligencie un formulario por cada demanda de información. Puede registrar tantas demandas como necesite: guarde y luego cree otra.'));
+    out.push(nota);
+  }
 
   // 4. Soporte o evidencia
   out.push(campo({id:'sg_soporte', t:'text', l:'Soporte o evidencia adjunta', h:'Nombre del archivo, formato o pantallazo que respalda lo diligenciado.'}, datos));
@@ -1049,6 +1021,18 @@ function camposPuente(datos, clave){
 }
 
 /* ---- Editor ---- */
+// Dibuja un campo de forma segura: si uno fallara, muestra una nota en lugar
+// de interrumpir el dibujado del resto del formulario.
+function campoSeguro(c, datos){
+  try { return campo(c, datos); }
+  catch(err){
+    console.error('Error al dibujar el campo', c && c.id, err);
+    return el('div',{cls:'campo'},
+      el('div',{cls:'rotulo'}, (c && c.l) || (c && c.id) || 'Campo'),
+      el('p',{cls:'ayuda', style:'color:#b23b3b'}, 'Este campo no se pudo mostrar; avise al administrador. Puede continuar con los demás.'));
+  }
+}
+
 function vistaEditor(p, clave){
   const e = ESQUEMAS[clave];
   const r = actual;
@@ -1057,14 +1041,17 @@ function vistaEditor(p, clave){
     el('h2',{}, e.nombre),
     el('p',{}, 'Los campos marcados con • son los mínimos para que el formato se considere completo en la mesa.')));
 
+  let camposPu = [];
+  try { camposPu = camposPuente(r.datos, clave); }
+  catch(err){ console.error('Error en el Puente con el SIGAMI', err); }
   const pu = el('div',{cls:'puente'},
     el('h4',{},'Puente con el SIGAMI'),
     el('p',{},'Uso interno de la Alcaldía. No se envía al DANE: sirve para codificar después el instrumento como documento controlado del sistema.'),
-    ...camposPuente(r.datos, clave));
+    ...camposPu);
   p.append(pu);
 
   e.modulos.forEach((m,i)=>{
-    const cuerpo = el('div',{cls:'cuerpo'}, ...m.campos.map(c=>campo(c, r.datos)));
+    const cuerpo = el('div',{cls:'cuerpo'}, ...m.campos.map(c=>campoSeguro(c, r.datos)));
     const cab = el('header',{}, el('span',{cls:'letra'}, m.letra), el('h3',{}, m.titulo), el('span',{cls:'chev'}, i===0?'−':'+'));
     const mod = el('div',{cls:'modulo'+(i===0?'':' cerrado')}, cab, cuerpo);
     cab.addEventListener('click', ()=>{ mod.classList.toggle('cerrado'); cab.querySelector('.chev').textContent = mod.classList.contains('cerrado')?'+':'−'; });
@@ -1090,7 +1077,7 @@ function vistaEditor(p, clave){
       r.actualizado = new Date().toISOString().slice(0,16).replace('T',' ');
       await guardarLista(clave);
       sucio=false;
-      document.getElementById('ecoGuardar').textContent = 'Guardado a las ' + r.actualizado.slice(11);
+      { const eco = document.getElementById('ecoGuardar'); if(eco) eco.textContent = 'Guardado a las ' + r.actualizado.slice(11); }
       pintarNav();
     }},'Guardar formato'),
     el('button',{cls:'btn sec', onclick:()=>{ if(sucio && !confirm('Hay cambios sin guardar. ¿Salir de todos modos?')) return; actual=null; sucio=false; pintar(); }},'Volver a la lista'),
@@ -1252,12 +1239,11 @@ function vistaCatalogo(p){
 
   p.append(el('div',{cls:'puente'},
     el('h4',{},'Cómo preparar el archivo'),
-    el('p',{},'Exporte el Listado Maestro a CSV. Basta con seis columnas, en este orden: Dependencia, Proceso misional, Código, Nombre del documento, Versión, Tipo. En «Tipo» escriba «Indicador» para el Anexo 2, «Encuesta» o «Censo» para el Anexo 3 (operación estadística) y «Registro administrativo» para el Anexo 4. Las fichas y los inventarios quedan como candidatos a registro administrativo. La base de datos y la llave se marcan luego, en «Formatos de mi dependencia». Si prefiere, puede agregar dos columnas más (¿Tiene base de datos? y Llave) y vendrán precargadas. Las demandas del Anexo 1 no son filas del listado: se registran con el botón de esa pantalla.'),
+    el('p',{},'Exporte el Listado Maestro a CSV. Basta con seis columnas, en este orden: Dependencia, Proceso misional, Código, Nombre del documento, Versión, Tipo. En «Tipo» escriba «Indicador» para los indicadores; los demás documentos quedan como formatos candidatos a registro administrativo. La base de datos y la llave se marcan luego dentro de la herramienta, en «Formatos de mi dependencia», sin necesidad de editar el Excel. Si prefiere, puede agregar dos columnas más (¿Tiene base de datos? y Llave) y vendrán precargadas.'),
     el('div',{cls:'acciones', style:'position:static;background:none;padding:0'},
       el('button',{cls:'btn sec', onclick:()=>{
         const filas=[COLS_CAT.map(c=>ROTULOS_CAT[c]).join(';'),
           'Secretaría de Salud;Gestión de la salud pública;FOR-SAL-014;Registro de vacunación canina y felina;3;Registro administrativo;Sí;Número de documento del propietario',
-          'Secretaría de Salud;Gestión de la salud pública;FOR-SAL-040;Encuesta epidemiológica;2;Encuesta / operación estadística;Sí;Documento del encuestado',
           'Secretaría de Salud;Gestión de la salud pública;FOR-SAL-021;Ficha de notificación de eventos de interés en salud pública;2;Registro administrativo;Sí;Código del evento',
           'Secretaría de Salud;Gestión de la salud pública;FOR-SAL-099;Acta de reunión de comité;1;Registro administrativo;No;'];
         bajar('\uFEFF'+filas.join('\r\n'),'Plantilla_Listado_Maestro.csv','text/csv;charset=utf-8');
@@ -1337,27 +1323,21 @@ function vistaFormatos(p){
     return;
   }
   const fsTodos = formatosDe(perfil.dep);
-  const btnDemanda = el('button',{cls:'btn', onclick:()=>{ vista='F2'; actual=nuevoRegistro('F2'); pintar(); }},'Registrar una demanda (Anexo 1 · F2)');
-
   if(!fsTodos.length){
     p.append(el('div',{cls:'vacio'}, el('strong',{},'Esta dependencia no tiene formatos en el catálogo'),
-      'Puede caracterizar igual, empezando desde los formularios del menú, o pedir que se actualice el Listado Maestro. Las demandas del Anexo 1 se registran aquí mismo.'));
-    p.append(el('div',{cls:'acciones'}, btnDemanda));
+      'Puede caracterizar igual, empezando desde los formularios del menú, o pedir que se actualice el Listado Maestro.'));
     return;
   }
 
   const esIndicador = f => (tipoAFormato(f.tipo)==='A2');
-  const esOperacion = f => (tipoAFormato(f.tipo)==='F1');
-  const esDemanda = f => (tipoAFormato(f.tipo)==='F2');
-  const marcables = fsTodos.filter(f=>!esIndicador(f) && !esOperacion(f) && !esDemanda(f));
+  const marcables = fsTodos.filter(f=>!esIndicador(f));   // los "Formato": candidatos a registro administrativo
   const indicadores = fsTodos.filter(esIndicador);
-  const operaciones = fsTodos.filter(esOperacion);
   const califican = marcables.filter(calificaF3);
 
   // Panel de filtro / instrucción
   const cont = el('div',{cls:'puente'},
-    el('h4',{},'Cómo caracterizar los documentos de esta dependencia'),
-    el('p',{}, 'Las '+operaciones.length+' encuestas o censos se caracterizan como operación estadística (Anexo 3 · F1). Los '+indicadores.length+' indicadores van al Anexo 2. De los '+marcables.length+' formatos restantes, solo los que tengan base de datos y llave se caracterizan como registro administrativo (Anexo 4 · F3).'),
+    el('h4',{},'Cómo caracterizar como registro administrativo (F3)'),
+    el('p',{}, 'De los '+marcables.length+' formatos de esta dependencia, marque cuáles tienen una base de datos y escriba su llave (el campo que identifica cada registro). Solo esos se caracterizan como registro administrativo del DANE. Los '+indicadores.length+' indicadores van al formato A2.'),
     el('p',{style:'font-weight:600'}, 'Ya marcados con base de datos y llave: '+califican.length+' de '+marcables.length));
   const lbl = el('label',{cls:'op', style:'display:inline-flex;gap:.5rem;align-items:center;cursor:pointer'});
   const chk = el('input',{type:'checkbox'}); chk.checked = soloBD;
@@ -1366,7 +1346,7 @@ function vistaFormatos(p){
   cont.append(lbl);
   p.append(cont);
 
-  const fs = soloBD ? fsTodos.filter(f=> esIndicador(f) || esOperacion(f) || esDemanda(f) || calificaF3(f)) : fsTodos;
+  const fs = soloBD ? fsTodos.filter(f=> esIndicador(f) || calificaF3(f)) : fsTodos;
 
   const hechos = fs.filter(f=>registroDeFormato(f.codigo)).length;
   const med = el('div',{cls:'puente'},
@@ -1385,15 +1365,14 @@ function vistaFormatos(p){
 
     const hecho = registroDeFormato(f.codigo);
 
-    if(esIndicador(f) || esOperacion(f) || esDemanda(f)){
-      const clave = esIndicador(f) ? 'A2' : esOperacion(f) ? 'F1' : 'F2';
-      const etiqueta = esIndicador(f) ? 'Indicador' : esOperacion(f) ? 'Operación estadística' : 'Demanda';
+    if(esIndicador(f)){
+      // Indicador → A2
       if(hecho){
         ficha.append(el('span',{cls:'estado ok'}, ESQUEMAS[hecho.clave].cod));
         ficha.append(el('button',{cls:'mini', onclick:()=>{ vista=hecho.clave; actual=hecho.r; pintar(); }},'Abrir'));
       } else {
-        ficha.append(el('span',{cls:'estado'}, etiqueta));
-        ficha.append(el('button',{cls:'mini', onclick:()=>{ vista=clave; actual=nuevoRegistro(clave,f); pintar(); }},'Caracterizar como '+clave));
+        ficha.append(el('span',{cls:'estado'},'Indicador'));
+        ficha.append(el('button',{cls:'mini', onclick:()=>{ vista='A2'; actual=nuevoRegistro('A2',f); pintar(); }},'Caracterizar como A2'));
       }
       fichas.append(ficha); return;
     }
@@ -1439,7 +1418,6 @@ function vistaFormatos(p){
     fichas.append(ficha);
   });
   p.append(fichas);
-  p.append(el('div',{cls:'acciones'}, btnDemanda));
 }
 
 /* =======================================================================
@@ -1470,7 +1448,15 @@ async function enviar(clave, r){
                     id:r.id, columnas:columnasDe(clave).map(c=>c.l), fila:filaDe(clave,r)};
     const res = await fetch(conexion.url, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(cuerpo)});
     const txt = await res.text();
-    if(!res.ok) throw new Error(txt.slice(0,120));
+    if(!res.ok) throw new Error('El servidor respondió con error ('+res.status+'). '+txt.slice(0,120));
+    // El Apps Script responde HTTP 200 incluso cuando rechaza; hay que leer el cuerpo.
+    let j=null; try{ j = JSON.parse(txt); }catch(_){}
+    if(j && j.ok===false){
+      if((j.error||'').toLowerCase().includes('clave'))
+        throw new Error('Clave incorrecta: la clave de la app no coincide con la del script de Google. Corríjala en «Consolidado → Clave o token».');
+      throw new Error('El servidor rechazó el envío: ' + (j.error || 'motivo desconocido'));
+    }
+    if(j && j.ok!==true && !/\bok\b/.test(txt)) throw new Error('Respuesta inesperada del servidor: ' + txt.slice(0,120));
     return txt;
   }
   if(conexion.modo==='supabase'){
